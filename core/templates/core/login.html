@@ -1,0 +1,56 @@
+<!-- ============================================================ -->
+<!-- 文件3: core/templates/core/login.html -->
+<!-- 登录页面 -->
+<!-- ============================================================ -->
+
+{% extends 'core/base.html' %}
+
+{% block title %}Login - SQL Buddy{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3>Login</h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" 
+                               name="email" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" 
+                               name="password" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">Login</button>
+                </form>
+                
+                <div class="mt-3 text-center">
+                    <a href="{% url 'register' %}">Don't have an account? Register</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Phase 4测试账号提示 -->
+        <div class="card mt-3">
+            <div class="card-body">
+                <h6>Test Accounts (Phase 4):</h6>
+                <small>
+                    Student: pizza4life@email.com<br>
+                    Mentor: copypaste@email.com<br>
+                    Admin: dank.memes@email.com<br>
+                    <em>Passwords in dbDML.sql</em>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

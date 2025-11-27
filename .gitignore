@@ -1,0 +1,27 @@
+# 环境变量 - 绝对不要提交
+.env
+.env.local
+.env.production
+
+# Python
+venv/
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+.Python
+
+# Django
+*.log
+db.sqlite3
+staticfiles/
+media/
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
+
+# 备份文件
+*.bak
+*.old

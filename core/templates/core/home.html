@@ -1,0 +1,25 @@
+<!-- ============================================================ -->
+<!-- 文件2: core/templates/core/home.html -->
+<!-- 首页 -->
+<!-- ============================================================ -->
+
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="text-center">
+    <h1>Welcome to SQL Buddy</h1>
+    <p class="lead">AI-Powered SQL Learning Platform</p>
+    
+    {% if not user_id %}
+    <div class="mt-4">
+        <a href="{% url 'login' %}" class="btn btn-primary btn-lg me-2">Login</a>
+        <a href="{% url 'register' %}" class="btn btn-outline-primary btn-lg">Register</a>
+    </div>
+    {% else %}
+    <div class="mt-4">
+        <h3>Welcome, {{ user_name }}!</h3>
+        <p>Role: {{ user_role }}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

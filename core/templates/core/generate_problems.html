@@ -1,0 +1,58 @@
+{% extends "core/base.html" %}
+
+{% block title %}Generate Problems{% endblock %}
+
+{% block content %}
+<h2>Generate Problems for Scenario</h2>
+
+<div class="mb-3">
+    <p>
+        Scenario description:
+    </p>
+    <div class="alert alert-secondary">
+        {{ scenario.scenario_description }}
+    </div>
+    <p class="text-muted">
+        The system will use this scenario to ask the LLM to create SQL practice problems.
+        Please provide a clear and meaningful scenario description to help the system generate good SQL problems.
+    </p>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label class="form-label">Difficulty</label>
+            <select class="form-select" name="difficulty">
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Number of problems</label>
+            <input type="number"
+                   class="form-control"
+                   name="num_problems"
+                   value="1"
+                   min="1"
+                   max="1"
+                   readonly>
+            <div class="form-text">
+                Currently the system always generates exactly one problem for each request.
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <button type="submit" class="btn btn-primary">
+            Generate Problems
+        </button>
+        <a href="{% url 'scenario_detail' scenario_no=scenario.scenario_no %}" class="btn btn-outline-secondary ms-2">
+            Back to Scenario
+        </a>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "core/base.html" %}
+
+{% block title %}My Scenarios{% endblock %}
+
+{% block content %}
+<h2>My Scenarios</h2>
+
+<div class="mb-3">
+    <a href="{% url 'scenario_create' %}" class="btn btn-primary">
+        Create New Scenario
+    </a>
+</div>
+
+{% if scenarios %}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Scenario</th>
+            <th>Description</th>
+            <th>Created at</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for s in scenarios %}
+        <tr>
+            <td>
+                <a href="{% url 'scenario_detail' s.scenario_no %}">
+                    <span style="white-space: nowrap;">Scenario {{ s.display_index }}</span>
+                </a>
+            </td>
+            <td>{{ s.scenario_description }}</td>
+            <td>{{ s.created_at }}</td>
+            <td class="text-end">
+                <form method="post"
+                      action="{% url 'scenario_delete' s.scenario_no %}"
+                      style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="btn btn-sm btn-outline-danger"
+                            onclick="return confirm('Delete this scenario and its problems if no attempts exist?');">
+                        Delete
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="text-muted">You have no scenarios yet.</p>
+{% endif %}
+{% endblock %}

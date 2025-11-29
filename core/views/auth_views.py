@@ -50,7 +50,7 @@ def login_view(request):
                 # 根据角色跳转到对应dashboard
                 role = user.get_role()
                 if role == 'Student':
-                    return redirect('home')  # 等Person B添加后改为student_dashboard
+                    return redirect('student_dashboard')  # 等Person B添加后改为student_dashboard
                 elif role == 'Mentor':
                     return redirect('home')  # 等Person C添加后改为mentor_dashboard
                 elif role == 'Admin':

@@ -1,0 +1,51 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Problem Detail{% endblock %}
+
+{% block content %}
+<h2>{{ problem.title }}</h2>
+
+<p><strong>Difficulty:</strong> {{ problem.difficulty }}</p>
+<p><strong>Description:</strong></p>
+<div style="white-space: pre-line;">
+    {{ problem.description }}
+</div>
+
+<h4 class="mt-4">Submit Your SQL Answer</h4>
+
+<form method="post" action="{% url 'submit_attempt' problem.problem_id %}">
+    {% csrf_token %}
+    <textarea name="student_sql" class="form-control" rows="5"></textarea>
+    <button class="btn btn-primary mt-3">Submit</button>
+</form>
+
+<hr>
+
+<h4>Your Previous Attempts</h4>
+
+{% if attempts %}
+<table class="table table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Score</th>
+            <th>Feedback</th>
+            <th>Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in attempts %}
+        <tr>
+            <td>{{ a.attempt_no }}</td>
+            <td>{{ a.score }}</td>
+            <td>{{ a.feedback }}</td>
+            <td>{{ a.submit_time }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No attempts yet.</p>
+{% endif %}
+
+{% endblock %}

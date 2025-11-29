@@ -172,7 +172,10 @@ class Attempt(models.Model):
         on_delete=models.CASCADE,
         db_column='problem_id'
     )
-    attempt_no = models.IntegerField()
+    
+    #Ran Zhou: revised to define attempt_no as primary key to avoid limitation of Django
+    attempt_no = models.IntegerField(primary_key=True)
+    
     mentor = models.ForeignKey(
         Mentor,
         on_delete=models.SET_NULL,
@@ -198,7 +201,9 @@ class HaveTopic(models.Model):
     problem = models.ForeignKey(
         Problem,
         on_delete=models.CASCADE,
-        db_column='problem_id'
+        db_column='problem_id',
+        #Ran Zhou: revised to define problem_id as primary key to avoid limitation of Django
+        primary_key=True,
     )
     topic = models.ForeignKey(
         Topic,

@@ -1,0 +1,89 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Browse Problems{% endblock %}
+
+{% block content %}
+<h2>Browse Problems</h2>
+
+<!-- Filter Form -->
+<form method="get" class="row g-3 mt-3 mb-4">
+    <div class="col-md-3">
+        <label class="form-label">Difficulty</label>
+        <select class="form-select" name="difficulty">
+            <option value="">Any</option>
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">Topic</label>
+        <input type="text" class="form-control" name="topic" value="{{selected_topic}}">
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">Attempted?</label>
+        <select class="form-select" name="attempted">
+            <option value="">Any</option>
+            <option value="yes">Attempted</option>
+            <option value="no">Not Attempted</option>
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">Source</label>
+        <select class="form-select" name="generated">
+            <option value="">All problems</option>
+            <option value="scenario" {% if selected_generated == "scenario" %}selected{% endif %}>
+                Scenario generated
+            </option>
+            <option value="normal" {% if selected_generated == "normal" %}selected{% endif %}>
+                Non scenario
+            </option>
+        </select>
+    </div>
+
+    <div class="col-12 text-end">
+        <button class="btn btn-primary">Apply Filters</button>
+    </div>
+</form>
+
+<!-- Results -->
+{% if problems %}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Difficulty</th>
+            <th>Topic</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in problems %}
+        <tr>
+            <td>
+                <a href="{% url 'problem_detail' p.problem_id %}">
+                    {{ p.title }}
+                </a>
+            </td>
+            <td>{{ p.difficulty }}</td>
+            <td>
+                {% with p.havetopic_set.all as hts %}
+                    {% if hts %}
+                        {% for ht in hts %}
+                            {{ ht.topic.topic_name }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        No topic
+                    {% endif %}
+                {% endwith %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No problems found.</p>
+{% endif %}
+{% endblock %}

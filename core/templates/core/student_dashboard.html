@@ -1,0 +1,163 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<h2>Student Dashboard</h2>
+
+<ul class="list-group mt-4 mb-4">
+    <li class="list-group-item">
+        <a href="{% url 'browse_problems' %}">Browse Problems</a>
+    </li>
+    <li class="list-group-item">
+        <a href="{% url 'my_attempts' %}">My Attempts</a>
+    </li>
+    <li class="list-group-item">
+        <a href="{% url 'scenario_list' %}">My Scenarios</a>
+    </li>
+    <li class="list-group-item">
+        <a href="{% url 'nl_query' %}">Natural Language SQL Query</a>
+    </li>
+</ul>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                Profile
+            </div>
+            <div class="card-body">
+                {% if summary %}
+                    <p class="mb-1"><strong>Name:</strong> {{ summary.name }}</p>
+                    <p class="mb-1"><strong>Email:</strong> {{ summary.email }}</p>
+                    <p class="mb-0"><strong>User ID:</strong> {{ summary.user_id }}</p>
+                {% else %}
+                    <p class="mb-0">Profile summary not available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mt-3 mt-md-0">
+        <div class="card">
+            <div class="card-header">
+                Performance
+            </div>
+            <div class="card-body">
+                {% if summary %}
+                    <p class="mb-1">
+                        <strong>Problems attempted:</strong>
+                        {{ summary.problems_attempted }}
+                    </p>
+                    <p class="mb-1">
+                        <strong>Average score:</strong>
+                        {% if summary.average_score %}
+                            {{ summary.average_score|floatformat:2 }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </p>
+                    <p class="mb-0">
+                        <strong>Highest score:</strong>
+                        {% if summary.highest_score %}
+                            {{ summary.highest_score|floatformat:2 }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </p>
+                {% else %}
+                    <p class="mb-0">No performance data yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mt-3 mt-md-0">
+        <div class="card">
+            <div class="card-header">
+                Attempts Summary
+            </div>
+            <div class="card-body">
+                {% if summary %}
+                    <p class="mb-0">
+                        <strong>Total attempts:</strong>
+                        {{ summary.total_attempts }}
+                    </p>
+                {% else %}
+                    <p class="mb-0">No attempts yet.</p>
+                {% endif %}
+                <div class="mt-3">
+                    <a href="{% url 'my_attempts' %}" class="btn btn-outline-primary btn-sm">
+                        View all attempts
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <h4>Recent Attempts</h4>
+    {% if recent_attempts %}
+        <table class="table table-bordered mt-2">
+            <thead>
+                <tr>
+                    <th>Problem</th>
+                    <th>Difficulty</th>
+                    <th>Attempt #</th>
+                    <th>Score</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in recent_attempts %}
+                <tr>
+                    <td>
+                        <a href="{% url 'problem_detail' a.problem.problem_id %}">
+                            {{ a.problem.title }}
+                        </a>
+                    </td>
+                    <td>{{ a.problem.difficulty }}</td>
+                    <td>{{ a.attempt_no }}</td>
+                    <td>{{ a.score }}</td>
+                    <td>{{ a.submit_time }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-muted">No attempts yet.</p>
+    {% endif %}
+</div>
+
+<div class="mt-4">
+    <h4>Recommended Problems</h4>
+    {% if recommended_problems %}
+        <table class="table table-bordered mt-2">
+            <thead>
+                <tr>
+                    <th>Problem</th>
+                    <th>Difficulty</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in recommended_problems %}
+                <tr>
+                    <td>
+                        <a href="{% url 'problem_detail' p.problem_id %}">
+                            {{ p.title }}
+                        </a>
+                    </td>
+                    <td>{{ p.difficulty }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-muted">
+            You have attempted most Easy or Medium problems already.
+        </p>
+    {% endif %}
+</div>
+
+{% endblock %}

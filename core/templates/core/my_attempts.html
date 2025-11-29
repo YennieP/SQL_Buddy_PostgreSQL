@@ -1,0 +1,130 @@
+{% extends 'core/base.html' %}
+
+{% block title %}My Attempts{% endblock %}
+
+{% block content %}
+<h2>My Attempts</h2>
+
+<form class="row g-3 mt-3 mb-4" method="get">
+    <div class="col-md-3">
+        <label class="form-label">Min Score</label>
+        <input
+            class="form-control"
+            type="number"
+            name="score_min"
+            value="{{ filters.score_min }}"
+        >
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Max Score</label>
+        <input
+            class="form-control"
+            type="number"
+            name="score_max"
+            value="{{ filters.score_max }}"
+        >
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Difficulty</label>
+        <select class="form-select" name="difficulty">
+            <option value="">Any</option>
+            <option value="Easy" {% if filters.difficulty == "Easy" %}selected{% endif %}>Easy</option>
+            <option value="Medium" {% if filters.difficulty == "Medium" %}selected{% endif %}>Medium</option>
+            <option value="Hard" {% if filters.difficulty == "Hard" %}selected{% endif %}>Hard</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Feedback?</label>
+        <select class="form-select" name="has_feedback">
+            <option value="">Any</option>
+            <option value="yes" {% if filters.has_feedback == "yes" %}selected{% endif %}>
+                With Feedback
+            </option>
+            <option value="no" {% if filters.has_feedback == "no" %}selected{% endif %}>
+                No Feedback
+            </option>
+        </select>
+    </div>
+
+    <div class="col-12 text-end">
+        <button class="btn btn-primary">Apply Filters</button>
+    </div>
+</form>
+
+{% if attempts %}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Problem</th>
+            <th>Difficulty</th>
+            <th>Attempt #</th>
+            <th>Score</th>
+            <th>Feedback</th>
+            <th>Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in attempts %}
+        <tr>
+            <td>{{ a.problem.title }}</td>
+            <td>{{ a.problem.difficulty }}</td>
+            <td>{{ a.attempt_no }}</td>
+            <td>{{ a.score }}</td>
+            <td>{{ a.feedback }}</td>
+            <td>{{ a.submit_time }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                Average Score
+            </div>
+            <div class="card-body">
+                <p class="card-text fs-4">
+                    {% if stats.avg_score %}
+                        {{ stats.avg_score|floatformat:2 }}
+                    {% else %}
+                        0
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mt-3 mt-md-0">
+        <div class="card">
+            <div class="card-header">
+                Attempts ≥ 90 (%)
+            </div>
+            <div class="card-body">
+                <p class="card-text fs-4">
+                    {% if high_score_pct is not None %}
+                        {{ high_score_pct|floatformat:1 }}%
+                    {% else %}
+                        0%
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mt-3 mt-md-0">
+        <div class="card">
+            <div class="card-header">
+                Total Attempts
+            </div>
+            <div class="card-body">
+                <p class="card-text fs-4">
+                    {{ stats.total_attempts|default:"0" }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<p>No attempts found.</p>
+{% endif %}
+{% endblock %}

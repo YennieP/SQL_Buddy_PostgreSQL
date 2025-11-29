@@ -1,0 +1,82 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Natural Language SQL Chat{% endblock %}
+
+{% block content %}
+<h2>Natural Language SQL Chat</h2>
+
+<p class="text-muted">
+    Ask questions about your data in natural language.
+</p>
+
+<form method="post" class="mt-4">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label class="form-label">Your question</label>
+        <textarea class="form-control" name="query" rows="3"
+                  placeholder="Examples:&#10;- my average score&#10;- problems I have attempted&#10;- show all hard problems with topic JOIN"></textarea>
+    </div>
+    <button class="btn btn-primary">Send</button>
+    <a href="{% url 'nl_query' %}?clear=1" class="btn btn-outline-secondary ms-2">
+        Clear History
+    </a>
+</form>
+
+<hr class="my-4">
+
+{% if chat_history %}
+    <h4>Conversation</h4>
+
+    {% for turn in chat_history %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <p><strong>You:</strong> {{ turn.user_query }}</p>
+
+                {% if turn.sql %}
+                    <p><strong>Generated SQL:</strong></p>
+                    <pre>{{ turn.sql }}</pre>
+
+                    {% if turn.explanation %}
+                        <p><strong>Explanation:</strong> {{ turn.explanation }}</p>
+                    {% endif %}
+                {% endif %}
+
+                {% if turn.error %}
+                    <div class="alert alert-warning mt-2">
+                        {{ turn.error }}
+                    </div>
+                {% endif %}
+
+                {% if turn.columns and turn.rows %}
+                    <div class="table-responsive mt-3">
+                        <table class="table table-bordered table-sm">
+                            <thead>
+                                <tr>
+                                    {% for col in turn.columns %}
+                                        <th>{{ col }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in turn.rows %}
+                                    <tr>
+                                        {% for cell in row %}
+                                            <td>{{ cell }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% elif turn.sql and not turn.error %}
+                    <p class="text-muted mt-2">
+                        Query executed successfully but returned no rows.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <p class="text-muted">No conversation yet. Ask your first question above.</p>
+{% endif %}
+{% endblock %}

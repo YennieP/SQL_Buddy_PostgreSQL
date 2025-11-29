@@ -19,8 +19,25 @@
             <a class="navbar-brand" href="{% url 'home' %}">SQL Buddy</a>
             <div class="navbar-nav ms-auto">
                 {% if user_id %}
-                    <span class="navbar-text text-white me-3">{{ user_name }} ({{ user_role }})</span>
+                    <!-- Ran Zhou: navigator junm to roles' dashboard-->
+                    {% if user_role == "Student" %}
+                        <a class="nav-link text-white me-3" href="{% url 'student_dashboard' %}">
+                            {{ user_name }} (Student)
+                        </a>
+
+                    {% elif user_role == "Mentor" %}
+                        <a class="nav-link text-white me-3" href="{% url 'mentor_dashboard' %}">
+                            {{ user_name }} (Mentor)
+                        </a>
+
+                    {% elif user_role == "Admin" %}
+                        <a class="nav-link text-white me-3" href="{% url 'admin_dashboard' %}">
+                            {{ user_name }} (Admin)
+                        </a>
+                    {% endif %}
+
                     <a class="nav-link text-white" href="{% url 'logout' %}">Logout</a>
+                    
                 {% else %}
                     <a class="nav-link text-white" href="{% url 'login' %}">Login</a>
                     <a class="nav-link text-white" href="{% url 'register' %}">Register</a>

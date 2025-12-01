@@ -1,0 +1,48 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<h2>Notification Center</h2>
+
+<div class="mb-3">
+    <a href="{% url 'mentor_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    {% if user.admin %}
+    <a href="{% url 'send_notification' %}" class="btn btn-primary">Send Notification</a>
+    {% endif %}
+</div>
+
+{% if notifications %}
+<div class="list-group">
+    {% for noti in notifications %}
+    <div class="list-group-item">
+        <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">Notification from {{ noti.sender_name }}</h5>
+            <small>{{ noti.send_time }}</small>
+        </div>
+        <p class="mb-1">Notification ID: {{ noti.noti_id }}</p>
+        <div class="mt-2">
+            <a href="{% url 'notification_detail' noti.noti_id %}" class="btn btn-sm btn-info">View Details</a>
+            <form method="post" action="{% url 'mark_notification_read' noti.noti_id %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-success">Mark as Read</button>
+            </form>
+            <form method="post" action="{% url 'delete_notification' noti.noti_id %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="mt-3">
+    <p class="text-muted">Total: {{ total_count }} notification(s)</p>
+</div>
+{% else %}
+<div class="alert alert-info">
+    No notifications yet.
+</div>
+{% endif %}
+
+{% endblock %}

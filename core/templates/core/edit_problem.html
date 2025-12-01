@@ -1,0 +1,43 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Edit Problem{% endblock %}
+
+{% block content %}
+<h2>Edit Problem</h2>
+
+<div class="mb-3">
+    <a href="{% url 'my_problems' %}" class="btn btn-secondary">Back to My Problems</a>
+</div>
+
+<form method="post" class="mt-4">
+    {% csrf_token %}
+
+    <div class="mb-3">
+        <label for="title" class="form-label">Title</label>
+        <input type="text" class="form-control" id="title" name="title" value="{{ problem.title }}" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <textarea class="form-control" id="description" name="description" rows="4">{{ problem.description }}</textarea>
+    </div>
+
+    <div class="mb-3">
+        <label for="correct_answer" class="form-label">Correct Answer (SQL)</label>
+        <textarea class="form-control" id="correct_answer" name="correct_answer" rows="5" required>{{ problem.correct_answer }}</textarea>
+    </div>
+
+    <div class="mb-3">
+        <label for="difficulty" class="form-label">Difficulty</label>
+        <select class="form-select" id="difficulty" name="difficulty" required>
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update Problem</button>
+    <a href="{% url 'my_problems' %}" class="btn btn-secondary">Cancel</a>
+</form>
+
+{% endblock %}

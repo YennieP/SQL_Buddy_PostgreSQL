@@ -1,0 +1,162 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Mentor Dashboard{% endblock %}
+
+{% block content %}
+<h2>Mentor Dashboard</h2>
+
+<ul class="list-group mt-4 mb-4">
+    <li class="list-group-item">
+        <a href="{% url 'my_problems' %}">My Problems</a>
+    </li>
+    <li class="list-group-item">
+        <a href="{% url 'create_problem' %}">Create Problem</a>
+    </li>
+    <li class="list-group-item">
+        <a href="{% url 'review_attempts' %}">Review Attempts</a>
+    </li>
+    <li class="list-group-item">
+        <a href="{% url 'my_resources' %}">My Resources</a>
+    </li>
+    <li class="list-group-item">
+        <a href="{% url 'upload_resource' %}">Upload Resource</a>
+    </li>
+    <li class="list-group-item">
+        <a href="{% url 'mentor_nl_query' %}">Natural Language SQL Query</a>
+    </li>
+    <li class="list-group-item">
+        <a href="{% url 'notification_center' %}">Notifications</a>
+    </li>
+</ul>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                Profile
+            </div>
+            <div class="card-body">
+                {% if dashboard_data %}
+                <p class="mb-1"><strong>Name:</strong> {{ dashboard_data.name }}</p>
+                <p class="mb-0"><strong>User ID:</strong> {{ dashboard_data.user_id }}</p>
+                {% else %}
+                <p class="mb-0">Profile summary not available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mt-3 mt-md-0">
+        <div class="card">
+            <div class="card-header">
+                Activity
+            </div>
+            <div class="card-body">
+                {% if dashboard_data %}
+                <p class="mb-1">
+                    <strong>Problems created:</strong>
+                    {{ dashboard_data.problems_created }}
+                </p>
+                <p class="mb-1">
+                    <strong>Resources uploaded:</strong>
+                    {{ dashboard_data.resources_uploaded }}
+                </p>
+                <p class="mb-0">
+                    <strong>Students mentored:</strong>
+                    {{ dashboard_data.students_mentored }}
+                </p>
+                {% else %}
+                <p class="mb-0">No activity data yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mt-3 mt-md-0">
+        <div class="card">
+            <div class="card-header">
+                Student Performance
+            </div>
+            <div class="card-body">
+                {% if dashboard_data %}
+                <p class="mb-0">
+                    <strong>Average student score:</strong>
+                    {% if dashboard_data.avg_student_score %}
+                    {{ dashboard_data.avg_student_score|floatformat:2 }}
+                    {% else %}
+                    N/A
+                    {% endif %}
+                </p>
+                {% else %}
+                <p class="mb-0">No student data yet.</p>
+                {% endif %}
+                <div class="mt-3">
+                    <a href="{% url 'review_attempts' %}" class="btn btn-outline-primary btn-sm">
+                        Review attempts
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <h4>Pending Reviews</h4>
+    {% if pending_reviews %}
+    <table class="table table-bordered mt-2">
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Problem</th>
+                <th>Score</th>
+                <th>Submitted</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for attempt in pending_reviews %}
+            <tr>
+                <td>{{ attempt.student.user.name }}</td>
+                <td>{{ attempt.problem.title }}</td>
+                <td>{{ attempt.score }}</td>
+                <td>{{ attempt.submit_time }}</td>
+                <td>
+                    <a href="{% url 'review_attempts' %}?problem_id={{ attempt.problem.problem_id }}"
+                       class="btn btn-sm btn-primary">Review</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">No pending reviews.</p>
+    {% endif %}
+</div>
+
+<div class="mt-4">
+    <h4>Recent Problems</h4>
+    {% if recent_problems %}
+    <table class="table table-bordered mt-2">
+        <thead>
+            <tr>
+                <th>Problem</th>
+                <th>Difficulty</th>
+                <th>Created</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for problem in recent_problems %}
+            <tr>
+                <td>{{ problem.title }}</td>
+                <td>{{ problem.difficulty }}</td>
+                <td>{{ problem.create_time }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">No problems created yet.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

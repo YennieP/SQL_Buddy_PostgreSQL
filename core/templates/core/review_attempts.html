@@ -1,0 +1,105 @@
+﻿{% extends 'core/base.html' %}
+
+{% block title %}Review Attempts{% endblock %}
+
+{% block content %}
+<h2>Review Attempts</h2>
+
+<div class="mb-3">
+    <a href="{% url 'mentor_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+
+<form method="get" class="mb-4">
+    <div class="row">
+        <div class="col-md-3">
+            <select name="has_feedback" class="form-select">
+                <option value="">All Attempts</option>
+                <option value="no" {% if filters.has_feedback == 'no' %}selected{% endif %}>No Feedback</option>
+                <option value="yes" {% if filters.has_feedback == 'yes' %}selected{% endif %}>Has Feedback</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <input type="number" name="score_min" class="form-control" placeholder="Min Score"
+                   value="{{ filters.score_min }}">
+        </div>
+        <div class="col-md-2">
+            <input type="number" name="score_max" class="form-control" placeholder="Max Score"
+                   value="{{ filters.score_max }}">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </div>
+    </div>
+</form>
+
+{% if attempts %}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Student</th>
+            <th>Problem</th>
+            <th>Attempt #</th>
+            <th>Score</th>
+            <th>Submitted</th>
+            <th>Feedback</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for attempt in attempts %}
+        <tr>
+            <td>{{ attempt.student.user.name }}</td>
+            <td>{{ attempt.problem.title }}</td>
+            <td>{{ attempt.attempt_no }}</td>
+            <td>{{ attempt.score }}</td>
+            <td>{{ attempt.submit_time }}</td>
+            <td>
+                {% if attempt.feedback %}
+                <span class="badge bg-success">✓</span>
+                {% else %}
+                <span class="badge bg-warning">Pending</span>
+                {% endif %}
+            </td>
+            <td>
+                <button type="button" class="btn btn-sm btn-primary"
+                        data-bs-toggle="modal" data-bs-target="#feedbackModal{{ attempt.attempt_no }}">
+                    {% if attempt.feedback %}View/Edit{% else %}Add Feedback{% endif %}
+                </button>
+            </td>
+        </tr>
+
+        <!-- Feedback Modal -->
+        <div class="modal fade" id="feedbackModal{{ attempt.attempt_no }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Feedback for Attempt #{{ attempt.attempt_no }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form method="post" action="{% url 'add_feedback' attempt.attempt_no %}">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <p><strong>Student:</strong> {{ attempt.student.user.name }}</p>
+                            <p><strong>Problem:</strong> {{ attempt.problem.title }}</p>
+                            <p><strong>Score:</strong> {{ attempt.score }}</p>
+                            <div class="mb-3">
+                                <label class="form-label">Feedback:</label>
+                                <textarea class="form-control" name="feedback" rows="5" required>{{ attempt.feedback }}</textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save Feedback</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="text-muted">No attempts found.</p>
+{% endif %}
+
+{% endblock %}

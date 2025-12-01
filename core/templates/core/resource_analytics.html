@@ -1,0 +1,64 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Resource Analytics{% endblock %}
+
+{% block content %}
+<h2>Resource Analytics</h2>
+
+<div class="mb-3">
+    <a href="{% url 'my_resources' %}" class="btn btn-secondary">Back to My Resources</a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h4>{{ resource.title }}</h4>
+    </div>
+    <div class="card-body">
+        <p><strong>Type:</strong> {{ resource.res_type }}</p>
+        <p><strong>URL:</strong> <a href="{{ resource.resource_url }}" target="_blank">{{ resource.resource_url }}</a></p>
+        <p><strong>Uploaded:</strong> {{ resource.uploaded_time }}</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Total Accesses</h5>
+                <p class="display-4">{{ total_accesses }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Unique Students</h5>
+                <p class="display-4">{{ unique_students }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h4>Access History</h4>
+{% if accesses %}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Student</th>
+            <th>Access Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for access in accesses %}
+        <tr>
+            <td>{{ access.student_name }}</td>
+            <td>{{ access.access_time }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="text-muted">No access history yet.</p>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Send Notification{% endblock %}
+
+{% block content %}
+<h2>Send Notification</h2>
+
+<div class="mb-3">
+    <a href="{% url 'notification_center' %}" class="btn btn-secondary">Back to Notifications</a>
+</div>
+
+<form method="post" class="mt-4">
+    {% csrf_token %}
+
+    <div class="mb-3">
+        <label for="recipient_type" class="form-label">Send To:</label>
+        <select class="form-select" id="recipient_type" name="recipient_type" required>
+            <option value="all_students">All Students</option>
+            <option value="all_mentors">All Mentors</option>
+            <option value="all_users">All Users</option>
+            <option value="specific">Specific User</option>
+        </select>
+    </div>
+
+    <div class="mb-3" id="specific_user_div" style="display:none;">
+        <label for="specific_user_id" class="form-label">User ID:</label>
+        <input type="number" class="form-control" id="specific_user_id" name="specific_user_id">
+    </div>
+
+    <div class="mb-3">
+        <label for="message" class="form-label">Message:</label>
+        <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Send Notification</button>
+    <a href="{% url 'notification_center' %}" class="btn btn-secondary">Cancel</a>
+</form>
+
+<script>
+document.getElementById('recipient_type').addEventListener('change', function() {
+    var specificDiv = document.getElementById('specific_user_div');
+    if (this.value === 'specific') {
+        specificDiv.style.display = 'block';
+    } else {
+        specificDiv.style.display = 'none';
+    }
+});
+</script>
+
+{% endblock %}

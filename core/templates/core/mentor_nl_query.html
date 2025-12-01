@@ -1,0 +1,93 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Natural Language Query{% endblock %}
+
+{% block content %}
+<h2>Natural Language SQL Query</h2>
+
+<div class="mb-3">
+    <a href="{% url 'mentor_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    <a href="{% url 'mentor_nl_query' %}?clear=1" class="btn btn-warning">Clear History</a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5>Ask a Question in Natural Language</h5>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="query" class="form-label">Your Question:</label>
+                <input type="text" class="form-control" id="query" name="query"
+                       placeholder="e.g., Show me all students who scored above 80" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Execute Query</button>
+        </form>
+    </div>
+</div>
+
+{% if chat_history %}
+<h4>Query History</h4>
+
+{% for entry in chat_history %}
+<div class="card mb-3">
+    <div class="card-header bg-light">
+        <strong>Question:</strong> {{ entry.user_query }}
+    </div>
+    <div class="card-body">
+        {% if entry.error %}
+        <div class="alert alert-danger">
+            <strong>Error:</strong> {{ entry.error }}
+        </div>
+        {% else %}
+        <div class="mb-3">
+            <strong>Generated SQL:</strong>
+            <pre class="bg-light p-2 border rounded"><code>{{ entry.sql }}</code></pre>
+        </div>
+
+        {% if entry.explanation %}
+        <div class="mb-3">
+            <strong>Explanation:</strong>
+            <p>{{ entry.explanation }}</p>
+        </div>
+        {% endif %}
+
+        {% if entry.columns %}
+        <div class="mb-3">
+            <strong>Results:</strong>
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr>
+                            {% for col in entry.columns %}
+                            <th>{{ col }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in entry.rows %}
+                        <tr>
+                            {% for cell in row %}
+                            <td>{{ cell }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <small class="text-muted">{{ entry.rows|length }} row(s) returned</small>
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+
+{% else %}
+<div class="alert alert-info">
+    No query history yet. Ask a question above to get started!
+</div>
+{% endif %}
+
+{% endblock %}

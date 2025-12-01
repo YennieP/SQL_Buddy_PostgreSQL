@@ -1,0 +1,80 @@
+﻿{% extends 'core/base.html' %}
+
+{% block title %}My Problems{% endblock %}
+
+{% block content %}
+<h2>My Problems</h2>
+
+<div class="mb-3">
+    <a href="{% url 'create_problem' %}" class="btn btn-primary">Create New Problem</a>
+    <a href="{% url 'mentor_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+
+<form method="get" class="mb-4">
+    <div class="row">
+        <div class="col-md-3">
+            <select name="difficulty" class="form-select">
+                <option value="">All Difficulties</option>
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <input type="text" name="topic" class="form-control" placeholder="Topic">
+        </div>
+        <div class="col-md-3">
+            <input type="date" name="date_from" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <a href="{% url 'my_problems' %}" class="btn btn-secondary">Clear</a>
+        </div>
+    </div>
+</form>
+
+{% if problems_with_stats %}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Difficulty</th>
+            <th>Topics</th>
+            <th>Total Attempts</th>
+            <th>Avg Score</th>
+            <th>Pass Rate</th>
+            <th>Students</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in problems_with_stats %}
+        <tr>
+            <td>{{ item.problem.title }}</td>
+            <td>{{ item.problem.difficulty }}</td>
+            <td>
+                {% if item.topics %}
+                {% for topic in item.topics %}
+                <span class="badge bg-info">{{ topic }}</span>
+                {% endfor %}
+                {% else %}
+                <span class="text-muted">-</span>
+                {% endif %}
+            </td>
+            <td>{{ item.total_attempts }}</td>
+            <td>{{ item.avg_score }}</td>
+            <td>{{ item.pass_rate }}%</td>
+            <td>{{ item.unique_students }}</td>
+            <td>
+                <a href="{% url 'edit_problem' item.problem.problem_id %}" class="btn btn-sm btn-warning">Edit</a>
+                <a href="{% url 'problem_analytics' item.problem.problem_id %}" class="btn btn-sm btn-info">Analytics</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="text-muted">No problems found.</p>
+{% endif %}
+
+{% endblock %}

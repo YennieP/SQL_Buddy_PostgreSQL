@@ -1,0 +1,65 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Create Problem{% endblock %}
+
+{% block content %}
+<h2>Create Problem</h2>
+
+<div class="mb-3">
+    <a href="{% url 'my_problems' %}" class="btn btn-secondary">Back to My Problems</a>
+</div>
+
+<form method="post" class="mt-4">
+    {% csrf_token %}
+
+    <div class="mb-3">
+        <label for="title" class="form-label">Title *</label>
+        <input type="text" class="form-control" id="title" name="title" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <textarea class="form-control" id="description" name="description" rows="4"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label for="correct_answer" class="form-label">Correct Answer (SQL) *</label>
+        <textarea class="form-control" id="correct_answer" name="correct_answer" rows="5" required></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label for="difficulty" class="form-label">Difficulty *</label>
+        <select class="form-select" id="difficulty" name="difficulty" required>
+            <option value="Easy">Easy</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="Hard">Hard</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="scenario_no" class="form-label">Scenario Number (Optional)</label>
+        <input type="number" class="form-control" id="scenario_no" name="scenario_no">
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Topics</label>
+        {% if topics %}
+        <div>
+            {% for topic in topics %}
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="topics"
+                       id="topic_{{ forloop.counter }}" value="{{ topic.topic_name }}">
+                <label class="form-check-label" for="topic_{{ forloop.counter }}">
+                    {{ topic.topic_name }}
+                </label>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Problem</button>
+    <a href="{% url 'my_problems' %}" class="btn btn-secondary">Cancel</a>
+</form>
+
+{% endblock %}

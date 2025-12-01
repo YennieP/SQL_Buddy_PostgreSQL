@@ -1,0 +1,81 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Problem Analytics{% endblock %}
+
+{% block content %}
+<h2>Problem Analytics</h2>
+
+<div class="mb-3">
+    <a href="{% url 'my_problems' %}" class="btn btn-secondary">Back to My Problems</a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h4>{{ problem.title }}</h4>
+    </div>
+    <div class="card-body">
+        <p><strong>Difficulty:</strong> {{ problem.difficulty }}</p>
+        <p><strong>Created:</strong> {{ problem.create_time }}</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Total Attempts</h5>
+                <p class="display-4">{{ total_attempts }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Avg Score</h5>
+                <p class="display-4">{{ avg_score }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">High Scores</h5>
+                <p class="display-4">{{ score_distribution.90_100 }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Low Scores</h5>
+                <p class="display-4">{{ score_distribution.0_59 }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h4>Recent Attempts</h4>
+{% if recent_attempts %}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Student</th>
+            <th>Score</th>
+            <th>Submitted</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for attempt in recent_attempts %}
+        <tr>
+            <td>{{ attempt.student.user.name }}</td>
+            <td>{{ attempt.score }}</td>
+            <td>{{ attempt.submit_time }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="text-muted">No attempts yet.</p>
+{% endif %}
+
+{% endblock %}

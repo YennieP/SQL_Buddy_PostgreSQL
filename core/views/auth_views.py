@@ -52,9 +52,9 @@ def login_view(request):
                 if role == 'Student':
                     return redirect('student_dashboard')  # 等Person B添加后改为student_dashboard
                 elif role == 'Mentor':
-                    return redirect('home')  # 等Person C添加后改为mentor_dashboard
+                    return redirect('mentor_dashboard')  # 等Person C添加后改为mentor_dashboard
                 elif role == 'Admin':
-                    return redirect('home')  # 等你添加admin后改为admin_dashboard
+                    return redirect('admin_dashboard')  # 等你添加admin后改为admin_dashboard
                 else:
                     return redirect('home')
             else:

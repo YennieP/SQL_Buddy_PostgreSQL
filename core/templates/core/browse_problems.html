@@ -1,89 +1,168 @@
-{% extends 'core/base.html' %}
+{% extends 'core/base_dashboard.html' %}
 
-{% block title %}Browse Problems{% endblock %}
+{% block title %}Browse Problems - SQL Buddy{% endblock %}
 
 {% block content %}
-<h2>Browse Problems</h2>
-
-<!-- Filter Form -->
-<form method="get" class="row g-3 mt-3 mb-4">
-    <div class="col-md-3">
-        <label class="form-label">Difficulty</label>
-        <select class="form-select" name="difficulty">
-            <option value="">Any</option>
-            <option value="Easy">Easy</option>
-            <option value="Medium">Medium</option>
-            <option value="Hard">Hard</option>
-        </select>
+<div class="container-fluid px-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="text-white mb-0">
+                <i class="bi bi-list-task me-2"></i>Browse Problems
+            </h1>
+        </div>
     </div>
 
-    <div class="col-md-3">
-        <label class="form-label">Topic</label>
-        <input type="text" class="form-control" name="topic" value="{{selected_topic}}">
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.95);">
+                <div class="card-body">
+                    <form method="GET" action="{% url 'browse_problems' %}">
+                        <div class="row g-3">
+                            <!-- Difficulty Filter -->
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-speedometer2 me-1"></i>Difficulty
+                                </label>
+                                <select name="difficulty" class="form-select">
+                                    <option value="">All Difficulties</option>
+                                    <option value="Easy" {% if selected_difficulty == 'Easy' %}selected{% endif %}>Easy</option>
+                                    <option value="Medium" {% if selected_difficulty == 'Medium' %}selected{% endif %}>Medium</option>
+                                    <option value="Hard" {% if selected_difficulty == 'Hard' %}selected{% endif %}>Hard</option>
+                                </select>
+                            </div>
+
+                            <!-- Topic Filter -->
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-tag me-1"></i>Topic
+                                </label>
+                                <input type="text" name="topic" class="form-control" 
+                                       placeholder="Search topic..." 
+                                       value="{{ selected_topic }}">
+                                <small class="text-muted">Fuzzy search (e.g., "JOIN", "SELECT")</small>
+                            </div>
+
+                            <!-- Attempted Filter -->
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-check2-circle me-1"></i>Attempted?
+                                </label>
+                                <select name="attempted" class="form-select">
+                                    <option value="">All Problems</option>
+                                    <option value="yes" {% if selected_attempted == 'yes' %}selected{% endif %}>Attempted</option>
+                                    <option value="no" {% if selected_attempted == 'no' %}selected{% endif %}>Not Attempted</option>
+                                </select>
+                            </div>
+
+                            <!-- Generated Filter -->
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-box me-1"></i>Source
+                                </label>
+                                <select name="generated" class="form-select">
+                                    <option value="">All Sources</option>
+                                    <option value="normal" {% if selected_generated == 'normal' %}selected{% endif %}>Normal</option>
+                                    <option value="scenario" {% if selected_generated == 'scenario' %}selected{% endif %}>Scenario</option>
+                                </select>
+                            </div>
+
+                            <!-- Apply Button -->
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-funnel me-1"></i>Apply Filters
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="col-md-3">
-        <label class="form-label">Attempted?</label>
-        <select class="form-select" name="attempted">
-            <option value="">Any</option>
-            <option value="yes">Attempted</option>
-            <option value="no">Not Attempted</option>
-        </select>
-    </div>
+    <!-- Problems List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.95);">
+                <div class="card-body">
+                    {% if problems %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 40%;">Title</th>
+                                    <th>Difficulty</th>
+                                    <th>Topics</th>
+                                    <th>Source</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for problem in problems %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'problem_detail' problem.problem_id %}" 
+                                           class="text-decoration-none fw-semibold text-primary">
+                                            {{ problem.title }}
+                                        </a>
+                                        {% if problem.description %}
+                                        <br>
+                                        <small class="text-muted">{{ problem.description|truncatewords:15 }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{% if problem.difficulty == 'Easy' %}success{% elif problem.difficulty == 'Medium' %}warning text-dark{% else %}danger{% endif %}">
+                                            {{ problem.difficulty }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% for ht in problem.havetopic_set.all %}
+                                            <span class="badge bg-secondary me-1">{{ ht.topic.topic_name }}</span>
+                                        {% empty %}
+                                            <span class="text-muted">-</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {% if problem.scenario %}
+                                            <span class="badge bg-info">
+                                                <i class="bi bi-stars me-1"></i>Scenario
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Normal</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'problem_detail' problem.problem_id %}" 
+                                           class="btn btn-sm btn-primary">
+                                            <i class="bi bi-play-circle me-1"></i>Solve
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
 
-    <div class="col-md-3">
-        <label class="form-label">Source</label>
-        <select class="form-select" name="generated">
-            <option value="">All problems</option>
-            <option value="scenario" {% if selected_generated == "scenario" %}selected{% endif %}>
-                Scenario generated
-            </option>
-            <option value="normal" {% if selected_generated == "normal" %}selected{% endif %}>
-                Non scenario
-            </option>
-        </select>
-    </div>
-
-    <div class="col-12 text-end">
-        <button class="btn btn-primary">Apply Filters</button>
-    </div>
-</form>
-
-<!-- Results -->
-{% if problems %}
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th>Difficulty</th>
-            <th>Topic</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for p in problems %}
-        <tr>
-            <td>
-                <a href="{% url 'problem_detail' p.problem_id %}">
-                    {{ p.title }}
-                </a>
-            </td>
-            <td>{{ p.difficulty }}</td>
-            <td>
-                {% with p.havetopic_set.all as hts %}
-                    {% if hts %}
-                        {% for ht in hts %}
-                            {{ ht.topic.topic_name }}{% if not forloop.last %}, {% endif %}
-                        {% endfor %}
+                    <div class="mt-3 text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Showing {{ problems|length }} problem(s)
+                    </div>
                     {% else %}
-                        No topic
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox display-1 opacity-50"></i>
+                        <p class="mt-3">No problems match your filters. Try adjusting the filters above.</p>
+                    </div>
                     {% endif %}
-                {% endwith %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p>No problems found.</p>
-{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: rgba(102, 126, 234, 0.1);
+        cursor: pointer;
+    }
+</style>
 {% endblock %}

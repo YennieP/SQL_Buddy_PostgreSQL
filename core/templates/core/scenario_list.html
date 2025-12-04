@@ -1,53 +1,84 @@
-{% extends "core/base.html" %}
+{% extends 'core/base_dashboard.html' %}
 
-{% block title %}My Scenarios{% endblock %}
+{% block title %}My Scenarios - SQL Buddy{% endblock %}
 
 {% block content %}
-<h2>My Scenarios</h2>
+<div class="container-fluid px-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="text-white mb-0">
+                    <i class="bi bi-collection me-2"></i>My Scenarios
+                </h1>
+                <a href="{% url 'scenario_create' %}" class="btn btn-light btn-lg">
+                    <i class="bi bi-plus-circle me-2"></i>Create New Scenario
+                </a>
+            </div>
+        </div>
+    </div>
 
-<div class="mb-3">
-    <a href="{% url 'scenario_create' %}" class="btn btn-primary">
-        Create New Scenario
-    </a>
+    <!-- Scenarios Grid -->
+    <div class="row g-4">
+        {% if scenarios %}
+            {% for s in scenarios %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: rgba(255, 255, 255, 0.95);">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="card-title mb-0">
+                                <span class="badge bg-primary me-2">Scenario #{{ s.display_index }}</span>
+                            </h5>
+                            <small class="text-muted">
+                                <i class="bi bi-calendar me-1"></i>{{ s.created_at|date:"M d, Y" }}
+                            </small>
+                        </div>
+
+                        <p class="card-text text-muted mb-3">
+                            {{ s.scenario_description|truncatewords:30 }}
+                        </p>
+
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'scenario_detail' s.scenario_no %}" 
+                               class="btn btn-sm btn-primary flex-grow-1">
+                                <i class="bi bi-eye me-1"></i>View Details
+                            </a>
+                            <form method="POST" action="{% url 'scenario_delete' s.scenario_no %}" 
+                                  class="d-inline"
+                                  onsubmit="return confirm('Are you sure? This will delete all problems in this scenario.');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.95);">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-inbox display-1 text-muted opacity-50"></i>
+                    <p class="mt-3 text-muted">You haven't created any scenarios yet.</p>
+                    <p class="text-muted mb-4">Create a custom scenario to generate personalized SQL problems!</p>
+                    <a href="{% url 'scenario_create' %}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i>Create Your First Scenario
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
 </div>
 
-{% if scenarios %}
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Scenario</th>
-            <th>Description</th>
-            <th>Created at</th>
-            <th class="text-end">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for s in scenarios %}
-        <tr>
-            <td>
-                <a href="{% url 'scenario_detail' s.scenario_no %}">
-                    <span style="white-space: nowrap;">Scenario {{ s.display_index }}</span>
-                </a>
-            </td>
-            <td>{{ s.scenario_description }}</td>
-            <td>{{ s.created_at }}</td>
-            <td class="text-end">
-                <form method="post"
-                      action="{% url 'scenario_delete' s.scenario_no %}"
-                      style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit"
-                            class="btn btn-sm btn-outline-danger"
-                            onclick="return confirm('Delete this scenario and its problems if no attempts exist?');">
-                        Delete
-                    </button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p class="text-muted">You have no scenarios yet.</p>
-{% endif %}
+<style>
+    .hover-lift {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.2) !important;
+    }
+</style>
 {% endblock %}

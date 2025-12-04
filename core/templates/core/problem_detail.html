@@ -1,51 +1,204 @@
-{% extends 'core/base.html' %}
+{% extends 'core/base_dashboard.html' %}
 
-{% block title %}Problem Detail{% endblock %}
+{% block title %}{{ problem.title }} - SQL Buddy{% endblock %}
 
 {% block content %}
-<h2>{{ problem.title }}</h2>
+<div class="container-fluid px-4">
+    <!-- Breadcrumb -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'student_dashboard' %}" class="text-white">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'browse_problems' %}" class="text-white">Browse Problems</a></li>
+                    <li class="breadcrumb-item active text-white-50">{{ problem.title }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
 
-<p><strong>Difficulty:</strong> {{ problem.difficulty }}</p>
-<p><strong>Description:</strong></p>
-<div style="white-space: pre-line;">
-    {{ problem.description }}
+    <!-- Problem Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.95);">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h2 class="mb-2">{{ problem.title }}</h2>
+                            <div class="d-flex gap-2 align-items-center">
+                                <span class="badge bg-{% if problem.difficulty == 'Easy' %}success{% elif problem.difficulty == 'Medium' %}warning text-dark{% else %}danger{% endif %} fs-6">
+                                    {{ problem.difficulty }}
+                                </span>
+                                {% if problem.scenario %}
+                                <span class="badge bg-info fs-6">
+                                    <i class="bi bi-stars me-1"></i>Scenario Problem
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <small class="text-muted">Problem #{{ problem.problem_id }}</small>
+                        </div>
+                    </div>
+
+                    <!-- Topics -->
+                    <div class="mb-3">
+                        <strong class="text-muted">Topics:</strong>
+                        {% for ht in problem.havetopic_set.all %}
+                            <span class="badge bg-secondary me-1">{{ ht.topic.topic_name }}</span>
+                        {% empty %}
+                            <span class="text-muted">No topics assigned</span>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Description -->
+                    <div class="alert alert-light border">
+                        <h5 class="mb-2"><i class="bi bi-info-circle me-2"></i>Problem Description</h5>
+                        <p class="mb-0" style="white-space: pre-wrap;">{{ problem.description }}</p>
+                    </div>
+
+                    <!-- Scenario Info (if applicable) -->
+                    {% if problem.scenario %}
+                    <div class="alert alert-info border-info">
+                        <h6 class="mb-2"><i class="bi bi-box me-2"></i>Scenario Context</h6>
+                        <p class="mb-0">{{ problem.scenario.scenario_description }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column: Submit Solution -->
+        <div class="col-lg-8 mb-4">
+            <div class="card border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.95);">
+                <div class="card-header bg-transparent border-bottom">
+                    <h4 class="mb-0">
+                        <i class="bi bi-code-square me-2"></i>Your Solution
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'submit_attempt' problem.problem_id %}">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Write your SQL query:</label>
+                            <textarea name="student_sql" 
+                                      class="form-control font-monospace" 
+                                      rows="12" 
+                                      placeholder="SELECT ... FROM ... WHERE ..."
+                                      required
+                                      style="font-size: 0.95rem; background-color: #f8f9fa;"></textarea>
+                            <small class="text-muted">
+                                <i class="bi bi-lightbulb me-1"></i>
+                                Tip: Use proper SQL syntax with SELECT, FROM, WHERE, etc.
+                            </small>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-send me-2"></i>Submit Answer
+                            </button>
+                            <button type="reset" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i>Clear
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Previous Attempts -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.95);">
+                <div class="card-header bg-transparent border-bottom">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock-history me-2"></i>Your Previous Attempts
+                    </h5>
+                </div>
+                <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+                    {% if attempts %}
+                        <div class="list-group list-group-flush">
+                            {% for attempt in attempts %}
+                            <div class="list-group-item px-0 border-bottom">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge bg-secondary">Attempt #{{ attempt.attempt_no }}</span>
+                                    <span class="badge bg-{% if attempt.score == 100 %}success{% elif attempt.score >= 70 %}warning text-dark{% else %}danger{% endif %}">
+                                        {{ attempt.score }} points
+                                    </span>
+                                </div>
+                                <small class="text-muted d-block mb-2">
+                                    <i class="bi bi-calendar me-1"></i>{{ attempt.submit_time|date:"M. d, Y, g:i a" }}
+                                </small>
+                                {% if attempt.feedback %}
+                                <div class="alert alert-info py-2 px-3 mb-0">
+                                    <strong>Mentor Feedback:</strong><br>
+                                    {{ attempt.feedback }}
+                                </div>
+                                {% else %}
+                                <small class="text-muted fst-italic">No feedback yet</small>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-inbox display-4 opacity-50"></i>
+                        <p class="mt-2 mb-0">No attempts yet</p>
+                        <small>Submit your first solution!</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Stats (if has attempts) -->
+            {% if attempts %}
+            <div class="card border-0 shadow-sm mt-3" style="background: rgba(255, 255, 255, 0.95);">
+                <div class="card-body text-center">
+                    <h6 class="text-muted mb-2">Your Stats on This Problem</h6>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h4 class="text-primary mb-0">{{ attempts|length }}</h4>
+                            <small class="text-muted">Attempts</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-success mb-0">
+                                {% for attempt in attempts %}
+                                    {% if forloop.first %}{{ attempt.score }}{% endif %}
+                                {% endfor %}
+                            </h4>
+                            <small class="text-muted">Latest Score</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="row">
+        <div class="col-12">
+            <a href="{% url 'browse_problems' %}" class="btn btn-outline-light">
+                <i class="bi bi-arrow-left me-1"></i>Back to Browse Problems
+            </a>
+        </div>
+    </div>
 </div>
 
-<h4 class="mt-4">Submit Your SQL Answer</h4>
-
-<form method="post" action="{% url 'submit_attempt' problem.problem_id %}">
-    {% csrf_token %}
-    <textarea name="student_sql" class="form-control" rows="5"></textarea>
-    <button class="btn btn-primary mt-3">Submit</button>
-</form>
-
-<hr>
-
-<h4>Your Previous Attempts</h4>
-
-{% if attempts %}
-<table class="table table-bordered mt-3">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Score</th>
-            <th>Feedback</th>
-            <th>Time</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for a in attempts %}
-        <tr>
-            <td>{{ a.attempt_no }}</td>
-            <td>{{ a.score }}</td>
-            <td>{{ a.feedback }}</td>
-            <td>{{ a.submit_time }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p>No attempts yet.</p>
-{% endif %}
-
+<style>
+    .font-monospace {
+        font-family: 'Courier New', monospace;
+    }
+    
+    .list-group-item {
+        background-color: transparent !important;
+    }
+    
+    textarea.form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+    }
+</style>
 {% endblock %}

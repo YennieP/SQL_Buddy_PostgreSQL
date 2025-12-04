@@ -1,31 +1,72 @@
-# 环境变量 - 绝对不要提交
-.env
-.env.local
-.env.production
+# ============================================================
+# SQL Buddy Project .gitignore
+# ============================================================
+
+# Virtual Environment
+venv/
+dbenv/
+env/
+ENV/
+.venv/
 
 # Python
-venv/
 __pycache__/
 *.py[cod]
+*$py.class
+*.so
 *.pyc
 *.pyo
+*.pyd
 .Python
 
 # Django
 *.log
+local_settings.py
 db.sqlite3
-staticfiles/
+db.sqlite3-journal
 media/
+staticfiles/
 
-# IDE
+# Environment Variables
+.env
+.env.local
+.env.*.local
+*.env
+
+# IDE & Editors
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 .DS_Store
 
-# 备份文件
-*.bak
+# Temporary and Backup Files
 *.old
+*.backup
+*.tmp
+*.bak
+*.orig
 
-# 敏感文件
-账号.txt
-*账号*.txt
+# Integration Tools and Analysis Reports
+tools/
+*_REPORT.md
+*_analysis.txt
+*_GUIDE.md
+*COMPARISON*.md
+form_fields_analysis.txt
+
+# OS Files
+Thumbs.db
+.DS_Store
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Distribution / Packaging
+build/
+dist/
+*.egg-info/

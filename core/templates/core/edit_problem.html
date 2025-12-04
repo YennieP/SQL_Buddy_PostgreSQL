@@ -1,43 +1,111 @@
-{% extends 'core/base.html' %}
+{% extends 'core/base_dashboard.html' %}
 
-{% block title %}Edit Problem{% endblock %}
+{% block title %}Edit Problem - SQL Buddy{% endblock %}
 
 {% block content %}
-<h2>Edit Problem</h2>
+<div class="container-fluid px-4">
+    <!-- Breadcrumb -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'mentor_dashboard' %}" class="text-white">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'my_problems' %}" class="text-white">My Problems</a></li>
+                    <li class="breadcrumb-item active text-white-50">Edit Problem</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
 
-<div class="mb-3">
-    <a href="{% url 'my_problems' %}" class="btn btn-secondary">Back to My Problems</a>
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="text-white">
+                <i class="bi bi-pencil me-2"></i>Edit Problem
+            </h1>
+        </div>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg" style="background: rgba(255, 255, 255, 0.95);">
+                <div class="card-body p-5">
+                    <form method="POST" action="{% url 'edit_problem' problem.problem_id %}">
+                        {% csrf_token %}
+
+                        <!-- Title -->
+                        <div class="mb-4">
+                            <label for="title" class="form-label fw-semibold">
+                                <i class="bi bi-card-heading me-2"></i>Problem Title
+                            </label>
+                            <input type="text" 
+                                   class="form-control form-control-lg" 
+                                   id="title" 
+                                   name="title" 
+                                   value="{{ problem.title }}" 
+                                   required>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-4">
+                            <label for="description" class="form-label fw-semibold">
+                                <i class="bi bi-text-paragraph me-2"></i>Description
+                            </label>
+                            <textarea class="form-control" 
+                                      id="description" 
+                                      name="description" 
+                                      rows="6">{{ problem.description }}</textarea>
+                        </div>
+
+                        <!-- Correct Answer -->
+                        <div class="mb-4">
+                            <label for="correct_answer" class="form-label fw-semibold">
+                                <i class="bi bi-code-square me-2"></i>Correct Answer (SQL)
+                            </label>
+                            <textarea class="form-control font-monospace" 
+                                      id="correct_answer" 
+                                      name="correct_answer" 
+                                      rows="8" 
+                                      style="background: #1e293b; color: #e2e8f0;"
+                                      required>{{ problem.correct_answer }}</textarea>
+                        </div>
+
+                        <!-- Difficulty -->
+                        <div class="mb-4">
+                            <label for="difficulty" class="form-label fw-semibold">
+                                <i class="bi bi-speedometer2 me-2"></i>Difficulty
+                            </label>
+                            <select class="form-select form-select-lg" id="difficulty" name="difficulty" required>
+                                <option value="Easy" {% if problem.difficulty == 'Easy' %}selected{% endif %}>Easy</option>
+                                <option value="Medium" {% if problem.difficulty == 'Medium' %}selected{% endif %}>Medium</option>
+                                <option value="Hard" {% if problem.difficulty == 'Hard' %}selected{% endif %}>Hard</option>
+                            </select>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle me-2"></i>Update Problem
+                            </button>
+                            <a href="{% url 'my_problems' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<form method="post" class="mt-4">
-    {% csrf_token %}
-
-    <div class="mb-3">
-        <label for="title" class="form-label">Title</label>
-        <input type="text" class="form-control" id="title" name="title" value="{{ problem.title }}" required>
-    </div>
-
-    <div class="mb-3">
-        <label for="description" class="form-label">Description</label>
-        <textarea class="form-control" id="description" name="description" rows="4">{{ problem.description }}</textarea>
-    </div>
-
-    <div class="mb-3">
-        <label for="correct_answer" class="form-label">Correct Answer (SQL)</label>
-        <textarea class="form-control" id="correct_answer" name="correct_answer" rows="5" required>{{ problem.correct_answer }}</textarea>
-    </div>
-
-    <div class="mb-3">
-        <label for="difficulty" class="form-label">Difficulty</label>
-        <select class="form-select" id="difficulty" name="difficulty" required>
-            <option value="Easy">Easy</option>
-            <option value="Medium">Medium</option>
-            <option value="Hard">Hard</option>
-        </select>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Update Problem</button>
-    <a href="{% url 'my_problems' %}" class="btn btn-secondary">Cancel</a>
-</form>
-
+<style>
+    .font-monospace {
+        font-family: 'Courier New', monospace;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+    }
+</style>
 {% endblock %}

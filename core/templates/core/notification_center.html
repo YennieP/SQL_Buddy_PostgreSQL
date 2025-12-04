@@ -1,48 +1,84 @@
-{% extends 'core/base.html' %}
+{% extends 'core/base_dashboard.html' %}
 
-{% block title %}Notifications{% endblock %}
+{% block title %}Notifications - SQL Buddy{% endblock %}
 
 {% block content %}
-<h2>Notification Center</h2>
-
-<div class="mb-3">
-    <a href="{% url 'mentor_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
-    {% if user.admin %}
-    <a href="{% url 'send_notification' %}" class="btn btn-primary">Send Notification</a>
-    {% endif %}
-</div>
-
-{% if notifications %}
-<div class="list-group">
-    {% for noti in notifications %}
-    <div class="list-group-item">
-        <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">Notification from {{ noti.sender_name }}</h5>
-            <small>{{ noti.send_time }}</small>
-        </div>
-        <p class="mb-1">Notification ID: {{ noti.noti_id }}</p>
-        <div class="mt-2">
-            <a href="{% url 'notification_detail' noti.noti_id %}" class="btn btn-sm btn-info">View Details</a>
-            <form method="post" action="{% url 'mark_notification_read' noti.noti_id %}" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-sm btn-success">Mark as Read</button>
-            </form>
-            <form method="post" action="{% url 'delete_notification' noti.noti_id %}" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-            </form>
+<div class="container-fluid px-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="text-white mb-0">
+                    <i class="bi bi-bell me-2"></i>Notification Center
+                </h1>
+                {% if user_role == 'Admin' %}
+                <a href="{% url 'send_notification' %}" class="btn btn-light btn-lg">
+                    <i class="bi bi-send me-2"></i>Send Notification
+                </a>
+                {% endif %}
+            </div>
         </div>
     </div>
-    {% endfor %}
-</div>
 
-<div class="mt-3">
-    <p class="text-muted">Total: {{ total_count }} notification(s)</p>
-</div>
-{% else %}
-<div class="alert alert-info">
-    No notifications yet.
-</div>
-{% endif %}
+    <!-- Notifications List -->
+    <div class="row">
+        <div class="col-12">
+            {% if notifications %}
+                {% for noti in notifications %}
+                <div class="card border-0 shadow-sm mb-3" style="background: rgba(255, 255, 255, 0.95);">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="mb-2">
+                                    <i class="bi bi-person-circle me-2 text-primary"></i>
+                                    From: {{ noti.sender_name }}
+                                </h5>
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar me-1"></i>
+                                    {{ noti.send_time|date:"M. d, Y, g:i a" }}
+                                </small>
+                            </div>
+                            <span class="badge bg-secondary">ID: {{ noti.noti_id }}</span>
+                        </div>
 
+                        <div class="d-flex gap-2 mt-3">
+                            <a href="{% url 'notification_detail' noti.noti_id %}" 
+                               class="btn btn-sm btn-outline-info">
+                                <i class="bi bi-eye me-1"></i>View Details
+                            </a>
+                            <form method="POST" action="{% url 'mark_notification_read' noti.noti_id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-success">
+                                    <i class="bi bi-check-lg me-1"></i>Mark as Read
+                                </button>
+                            </form>
+                            <form method="POST" action="{% url 'delete_notification' noti.noti_id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash me-1"></i>Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <div class="card border-0 shadow-sm mt-4" style="background: rgba(255, 255, 255, 0.95);">
+                    <div class="card-body text-center py-3">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Total: {{ total_count|default:notifications|length }} notification(s)
+                        </small>
+                    </div>
+                </div>
+            {% else %}
+            <div class="card border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.95);">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-inbox display-1 text-muted opacity-50"></i>
+                    <p class="mt-3 text-muted">No notifications yet.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock %}

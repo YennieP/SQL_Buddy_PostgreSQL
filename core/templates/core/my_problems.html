@@ -1,80 +1,164 @@
-﻿{% extends 'core/base.html' %}
+{% extends 'core/base_dashboard.html' %}
 
-{% block title %}My Problems{% endblock %}
+{% block title %}My Problems - SQL Buddy{% endblock %}
 
 {% block content %}
-<h2>My Problems</h2>
-
-<div class="mb-3">
-    <a href="{% url 'create_problem' %}" class="btn btn-primary">Create New Problem</a>
-    <a href="{% url 'mentor_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
-</div>
-
-<form method="get" class="mb-4">
-    <div class="row">
-        <div class="col-md-3">
-            <select name="difficulty" class="form-select">
-                <option value="">All Difficulties</option>
-                <option value="Easy">Easy</option>
-                <option value="Medium">Medium</option>
-                <option value="Hard">Hard</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <input type="text" name="topic" class="form-control" placeholder="Topic">
-        </div>
-        <div class="col-md-3">
-            <input type="date" name="date_from" class="form-control">
-        </div>
-        <div class="col-md-3">
-            <button type="submit" class="btn btn-primary">Filter</button>
-            <a href="{% url 'my_problems' %}" class="btn btn-secondary">Clear</a>
+<div class="container-fluid px-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="text-white mb-0">
+                    <i class="bi bi-list-check me-2"></i>My Problems
+                </h1>
+                <a href="{% url 'create_problem' %}" class="btn btn-light btn-lg">
+                    <i class="bi bi-plus-circle me-2"></i>Create New Problem
+                </a>
+            </div>
         </div>
     </div>
-</form>
 
-{% if problems_with_stats %}
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th>Difficulty</th>
-            <th>Topics</th>
-            <th>Total Attempts</th>
-            <th>Avg Score</th>
-            <th>Pass Rate</th>
-            <th>Students</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in problems_with_stats %}
-        <tr>
-            <td>{{ item.problem.title }}</td>
-            <td>{{ item.problem.difficulty }}</td>
-            <td>
-                {% if item.topics %}
-                {% for topic in item.topics %}
-                <span class="badge bg-info">{{ topic }}</span>
-                {% endfor %}
-                {% else %}
-                <span class="text-muted">-</span>
-                {% endif %}
-            </td>
-            <td>{{ item.total_attempts }}</td>
-            <td>{{ item.avg_score }}</td>
-            <td>{{ item.pass_rate }}%</td>
-            <td>{{ item.unique_students }}</td>
-            <td>
-                <a href="{% url 'edit_problem' item.problem.problem_id %}" class="btn btn-sm btn-warning">Edit</a>
-                <a href="{% url 'problem_analytics' item.problem.problem_id %}" class="btn btn-sm btn-info">Analytics</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p class="text-muted">No problems found.</p>
-{% endif %}
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.95);">
+                <div class="card-body">
+                    <form method="GET" action="{% url 'my_problems' %}">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Difficulty</label>
+                                <select name="difficulty" class="form-select">
+                                    <option value="">All Difficulties</option>
+                                    <option value="Easy" {% if filters.difficulty == 'Easy' %}selected{% endif %}>Easy</option>
+                                    <option value="Medium" {% if filters.difficulty == 'Medium' %}selected{% endif %}>Medium</option>
+                                    <option value="Hard" {% if filters.difficulty == 'Hard' %}selected{% endif %}>Hard</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Topic</label>
+                                <input type="text" name="topic" class="form-control" 
+                                       placeholder="Search topic..." 
+                                       value="{{ filters.topic }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold">Date From</label>
+                                <input type="text" 
+                                       name="date_from" 
+                                       class="form-control" 
+                                       placeholder="YYYY-MM-DD"
+                                       pattern="\d{4}-\d{2}-\d{2}"
+                                       value="{{ filters.date_from }}">
+                                <small class="text-muted">Format: 2025-12-03</small>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold">Date To</label>
+                                <input type="text" 
+                                       name="date_to" 
+                                       class="form-control" 
+                                       placeholder="YYYY-MM-DD"
+                                       pattern="\d{4}-\d{2}-\d{2}"
+                                       value="{{ filters.date_to }}">
+                                <small class="text-muted">Format: 2025-12-03</small>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-funnel me-1"></i>Filter
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <!-- Problems Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.95);">
+                <div class="card-body">
+                    {% if problems_with_stats %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 25%;">Title</th>
+                                    <th>Difficulty</th>
+                                    <th>Topics</th>
+                                    <th class="text-center">Attempts</th>
+                                    <th class="text-center">Avg Score</th>
+                                    <th class="text-center">Pass Rate</th>
+                                    <th class="text-center">Students</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in problems_with_stats %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ item.problem.title }}</strong>
+                                        {% if item.problem.scenario %}
+                                        <br><span class="badge bg-info mt-1">Scenario</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{% if item.problem.difficulty == 'Easy' %}success{% elif item.problem.difficulty == 'Medium' %}warning text-dark{% else %}danger{% endif %}">
+                                            {{ item.problem.difficulty }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if item.topics %}
+                                            {% for topic in item.topics %}
+                                                <span class="badge bg-secondary me-1">{{ topic }}</span>
+                                            {% endfor %}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-primary">{{ item.total_attempts }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="fw-bold">{{ item.avg_score }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-{% if item.pass_rate >= 70 %}success{% elif item.pass_rate >= 50 %}warning text-dark{% else %}danger{% endif %}">
+                                            {{ item.pass_rate }}%
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-info">{{ item.unique_students }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{% url 'edit_problem' item.problem.problem_id %}" 
+                                               class="btn btn-sm btn-outline-warning">
+                                                <i class="bi bi-pencil me-1"></i>Edit
+                                            </a>
+                                            <a href="{% url 'problem_analytics' item.problem.problem_id %}" 
+                                               class="btn btn-sm btn-outline-info">
+                                                <i class="bi bi-graph-up me-1"></i>Analytics
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-3 text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Showing {{ problems_with_stats|length }} problem(s)
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox display-1 opacity-50"></i>
+                        <p class="mt-3">No problems found. Try adjusting the filters or create a new problem!</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

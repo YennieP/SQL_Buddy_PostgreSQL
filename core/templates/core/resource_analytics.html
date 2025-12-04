@@ -1,64 +1,127 @@
-{% extends 'core/base.html' %}
+{% extends 'core/base_dashboard.html' %}
 
-{% block title %}Resource Analytics{% endblock %}
+{% block title %}Resource Analytics - SQL Buddy{% endblock %}
 
 {% block content %}
-<h2>Resource Analytics</h2>
-
-<div class="mb-3">
-    <a href="{% url 'my_resources' %}" class="btn btn-secondary">Back to My Resources</a>
-</div>
-
-<div class="card mb-4">
-    <div class="card-header">
-        <h4>{{ resource.title }}</h4>
+<div class="container-fluid px-4">
+    <!-- Breadcrumb -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'mentor_dashboard' %}" class="text-white">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'my_resources' %}" class="text-white">My Resources</a></li>
+                    <li class="breadcrumb-item active text-white-50">Analytics</li>
+                </ol>
+            </nav>
+        </div>
     </div>
-    <div class="card-body">
-        <p><strong>Type:</strong> {{ resource.res_type }}</p>
-        <p><strong>URL:</strong> <a href="{{ resource.resource_url }}" target="_blank">{{ resource.resource_url }}</a></p>
-        <p><strong>Uploaded:</strong> {{ resource.uploaded_time }}</p>
-    </div>
-</div>
 
-<div class="row mb-4">
-    <div class="col-md-6">
-        <div class="card text-center">
-            <div class="card-body">
-                <h5 class="card-title">Total Accesses</h5>
-                <p class="display-4">{{ total_accesses }}</p>
+    <!-- Resource Info -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.95);">
+                <div class="card-body p-4">
+                    <h2 class="mb-3">{{ resource.title }}</h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <strong>Type:</strong> 
+                                <span class="badge bg-primary">{{ resource.res_type }}</span>
+                            </p>
+                            <p class="mb-2">
+                                <strong>URL:</strong> 
+                                <a href="{{ resource.resource_url }}" target="_blank" class="text-decoration-none">
+                                    {{ resource.resource_url|truncatechars:50 }}
+                                    <i class="bi bi-box-arrow-up-right ms-1"></i>
+                                </a>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <strong>Uploaded:</strong> 
+                                {{ resource.uploaded_time|date:"F d, Y" }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="card text-center">
-            <div class="card-body">
-                <h5 class="card-title">Unique Students</h5>
-                <p class="display-4">{{ unique_students }}</p>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm text-center h-100" style="background: rgba(255, 255, 255, 0.95);">
+                <div class="card-body p-4">
+                    <div class="mx-auto rounded-circle d-flex align-items-center justify-content-center mb-3" 
+                         style="width: 80px; height: 80px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <i class="bi bi-eye text-white" style="font-size: 2rem;"></i>
+                    </div>
+                    <h2 class="display-4 fw-bold text-primary">{{ total_accesses }}</h2>
+                    <p class="text-muted text-uppercase fw-bold mb-0" style="letter-spacing: 2px;">Total Accesses</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm text-center h-100" style="background: rgba(255, 255, 255, 0.95);">
+                <div class="card-body p-4">
+                    <div class="mx-auto rounded-circle d-flex align-items-center justify-content-center mb-3" 
+                         style="width: 80px; height: 80px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <i class="bi bi-people text-white" style="font-size: 2rem;"></i>
+                    </div>
+                    <h2 class="display-4 fw-bold" style="color: #f5576c;">{{ unique_students }}</h2>
+                    <p class="text-muted text-uppercase fw-bold mb-0" style="letter-spacing: 2px;">Unique Students</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Access History -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.95);">
+                <div class="card-header bg-transparent border-bottom">
+                    <h4 class="mb-0">
+                        <i class="bi bi-clock-history me-2"></i>Access History
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% if accesses %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Access Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for access in accesses %}
+                                <tr>
+                                    <td>
+                                        <i class="bi bi-person-circle me-2 text-primary"></i>
+                                        {{ access.student_name }}
+                                    </td>
+                                    <td class="text-muted">
+                                        <i class="bi bi-calendar me-2"></i>
+                                        {{ access.access_time|date:"M. d, Y, g:i a" }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox display-1 opacity-50"></i>
+                        <p class="mt-3">No access history yet</p>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
 </div>
-
-<h4>Access History</h4>
-{% if accesses %}
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Student</th>
-            <th>Access Time</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for access in accesses %}
-        <tr>
-            <td>{{ access.student_name }}</td>
-            <td>{{ access.access_time }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p class="text-muted">No access history yet.</p>
-{% endif %}
-
 {% endblock %}

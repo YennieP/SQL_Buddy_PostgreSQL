@@ -1,93 +1,166 @@
-{% extends 'core/base.html' %}
+{% extends 'core/base_dashboard.html' %}
 
-{% block title %}Natural Language Query{% endblock %}
+{% block title %}Natural Language SQL Query - SQL Buddy{% endblock %}
 
 {% block content %}
-<h2>Natural Language SQL Query</h2>
-
-<div class="mb-3">
-    <a href="{% url 'mentor_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
-    <a href="{% url 'mentor_nl_query' %}?clear=1" class="btn btn-warning">Clear History</a>
-</div>
-
-<div class="card mb-4">
-    <div class="card-header">
-        <h5>Ask a Question in Natural Language</h5>
-    </div>
-    <div class="card-body">
-        <form method="post">
-            {% csrf_token %}
-            <div class="mb-3">
-                <label for="query" class="form-label">Your Question:</label>
-                <input type="text" class="form-control" id="query" name="query"
-                       placeholder="e.g., Show me all students who scored above 80" required>
+<div class="container-fluid px-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="text-white mb-0">
+                    <i class="bi bi-chat-dots me-2"></i>Natural Language SQL Query
+                </h1>
+                <a href="{% url 'nl_query' %}?clear=1" class="btn btn-outline-light">
+                    <i class="bi bi-trash me-1"></i>Clear History
+                </a>
             </div>
-            <button type="submit" class="btn btn-primary">Execute Query</button>
-        </form>
+            <p class="text-white-50 mb-0">Ask questions in plain English, get SQL queries!</p>
+        </div>
     </div>
-</div>
 
-{% if chat_history %}
-<h4>Query History</h4>
+    <!-- Chat History -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.95); max-height: 60vh; overflow-y: auto;">
+                <div class="card-body" id="chatHistory">
+                    {% if chat_history %}
+                        {% for turn in chat_history %}
+                        <div class="mb-4 pb-4 border-bottom">
+                            <!-- User Query -->
+                            <div class="mb-3">
+                                <div class="d-flex align-items-start">
+                                    <div class="bg-primary text-white rounded-circle p-2 me-3" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-person"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <strong class="text-primary">You asked:</strong>
+                                        <p class="mb-0 mt-1">{{ turn.user_query }}</p>
+                                    </div>
+                                </div>
+                            </div>
 
-{% for entry in chat_history %}
-<div class="card mb-3">
-    <div class="card-header bg-light">
-        <strong>Question:</strong> {{ entry.user_query }}
-    </div>
-    <div class="card-body">
-        {% if entry.error %}
-        <div class="alert alert-danger">
-            <strong>Error:</strong> {{ entry.error }}
-        </div>
-        {% else %}
-        <div class="mb-3">
-            <strong>Generated SQL:</strong>
-            <pre class="bg-light p-2 border rounded"><code>{{ entry.sql }}</code></pre>
-        </div>
+                            <!-- AI Response -->
+                            <div class="ms-5">
+                                <div class="d-flex align-items-start">
+                                    <div class="bg-success text-white rounded-circle p-2 me-3" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-robot"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        {% if turn.error %}
+                                            <div class="alert alert-danger mb-2">
+                                                <i class="bi bi-exclamation-circle me-2"></i>{{ turn.error }}
+                                            </div>
+                                        {% else %}
+                                            <!-- Explanation -->
+                                            {% if turn.explanation %}
+                                            <div class="mb-2">
+                                                <strong class="text-success">Explanation:</strong>
+                                                <p class="mb-0 mt-1">{{ turn.explanation }}</p>
+                                            </div>
+                                            {% endif %}
 
-        {% if entry.explanation %}
-        <div class="mb-3">
-            <strong>Explanation:</strong>
-            <p>{{ entry.explanation }}</p>
-        </div>
-        {% endif %}
+                                            <!-- SQL Query -->
+                                            {% if turn.sql %}
+                                            <div class="mb-2">
+                                                <strong class="text-success">Generated SQL:</strong>
+                                                <pre class="bg-dark text-light p-3 rounded mt-1"><code>{{ turn.sql }}</code></pre>
+                                            </div>
+                                            {% endif %}
 
-        {% if entry.columns %}
-        <div class="mb-3">
-            <strong>Results:</strong>
-            <div class="table-responsive">
-                <table class="table table-bordered table-sm">
-                    <thead>
-                        <tr>
-                            {% for col in entry.columns %}
-                            <th>{{ col }}</th>
-                            {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for row in entry.rows %}
-                        <tr>
-                            {% for cell in row %}
-                            <td>{{ cell }}</td>
-                            {% endfor %}
-                        </tr>
+                                            <!-- Query Results -->
+                                            {% if turn.columns %}
+                                            <div class="mb-2">
+                                                <strong class="text-success">Results:</strong>
+                                                <div class="table-responsive mt-2">
+                                                    <table class="table table-sm table-bordered">
+                                                        <thead class="table-light">
+                                                            <tr>
+                                                                {% for col in turn.columns %}
+                                                                <th>{{ col }}</th>
+                                                                {% endfor %}
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for row in turn.rows %}
+                                                            <tr>
+                                                                {% for cell in row %}
+                                                                <td>{{ cell }}</td>
+                                                                {% endfor %}
+                                                            </tr>
+                                                            {% empty %}
+                                                            <tr>
+                                                                <td colspan="{{ turn.columns|length }}" class="text-center text-muted">
+                                                                    No results returned
+                                                                </td>
+                                                            </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         {% endfor %}
-                    </tbody>
-                </table>
+                    {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-chat-dots display-1 opacity-50"></i>
+                        <p class="mt-3">No queries yet. Start asking questions below!</p>
+                        <p class="text-muted">Example: "Show me all easy problems" or "Find my attempts with score > 80"</p>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
-            <small class="text-muted">{{ entry.rows|length }} row(s) returned</small>
         </div>
-        {% endif %}
-        {% endif %}
+    </div>
+
+    <!-- Query Input -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg" style="background: rgba(255, 255, 255, 0.95);">
+                <div class="card-body">
+                    <form method="POST" action="{% url 'nl_query' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-chat-square-text me-2"></i>Ask a question in natural language:
+                            </label>
+                            <textarea name="query" 
+                                      class="form-control form-control-lg" 
+                                      rows="3" 
+                                      placeholder="e.g., Show me all problems I attempted today with a score above 80"
+                                      required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-send me-2"></i>Send Query
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-{% endfor %}
 
-{% else %}
-<div class="alert alert-info">
-    No query history yet. Ask a question above to get started!
-</div>
-{% endif %}
+<style>
+    pre code {
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+    }
+    #chatHistory {
+        scroll-behavior: smooth;
+    }
+</style>
 
+<script>
+    // Auto scroll to bottom of chat history
+    window.onload = function() {
+        var chatHistory = document.getElementById('chatHistory');
+        if (chatHistory) {
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+    }
+</script>
 {% endblock %}

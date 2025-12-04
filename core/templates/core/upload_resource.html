@@ -1,60 +1,130 @@
-{% extends 'core/base.html' %}
+{% extends 'core/base_dashboard.html' %}
 
-{% block title %}Upload Resource{% endblock %}
+{% block title %}Upload Resource - SQL Buddy{% endblock %}
 
 {% block content %}
-<h2>Upload Resource</h2>
+<div class="container-fluid px-4">
+    <!-- Breadcrumb -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'mentor_dashboard' %}" class="text-white">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'my_resources' %}" class="text-white">My Resources</a></li>
+                    <li class="breadcrumb-item active text-white-50">Upload New</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
 
-<div class="mb-3">
-    <a href="{% url 'my_resources' %}" class="btn btn-secondary">Back to My Resources</a>
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="text-white">
+                <i class="bi bi-upload me-2"></i>Upload Learning Resource
+            </h1>
+            <p class="text-white-50">Share helpful materials with your students</p>
+        </div>
+    </div>
+
+    <!-- Upload Form -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg" style="background: rgba(255, 255, 255, 0.95);">
+                <div class="card-body p-5">
+                    <form method="POST" action="{% url 'upload_resource' %}">
+                        {% csrf_token %}
+
+                        <!-- Title -->
+                        <div class="mb-4">
+                            <label for="title" class="form-label fw-semibold">
+                                <i class="bi bi-card-heading me-2"></i>Resource Title
+                            </label>
+                            <input type="text" 
+                                   class="form-control form-control-lg" 
+                                   id="title" 
+                                   name="title" 
+                                   placeholder="e.g., Advanced SQL Joins Tutorial"
+                                   required>
+                        </div>
+
+                        <!-- Type -->
+                        <div class="mb-4">
+                            <label for="res_type" class="form-label fw-semibold">
+                                <i class="bi bi-bookmark me-2"></i>Resource Type
+                            </label>
+                            <select class="form-select form-select-lg" id="res_type" name="res_type" required>
+                                <option value="Article">📄 Article</option>
+                                <option value="Video">🎥 Video</option>
+                                <option value="Tutorial">📚 Tutorial</option>
+                                <option value="Documentation">📖 Documentation</option>
+                                <option value="Other">📦 Other</option>
+                            </select>
+                        </div>
+
+                        <!-- URL -->
+                        <div class="mb-4">
+                            <label for="resource_url" class="form-label fw-semibold">
+                                <i class="bi bi-link-45deg me-2"></i>Resource URL
+                            </label>
+                            <input type="url" 
+                                   class="form-control form-control-lg" 
+                                   id="resource_url" 
+                                   name="resource_url" 
+                                   placeholder="https://example.com/resource"
+                                   required>
+                            <small class="text-muted">Provide a direct link to the learning material</small>
+                        </div>
+
+                        <!-- Topics -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-tags me-2"></i>Related Topics (Optional)
+                            </label>
+                            {% if topics %}
+                            <div class="border rounded p-3" style="background: #f8f9fa; max-height: 200px; overflow-y: auto;">
+                                <div class="row">
+                                    {% for topic in topics %}
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" 
+                                                   type="checkbox" 
+                                                   name="topics" 
+                                                   value="{{ topic.topic_name }}" 
+                                                   id="topic{{ forloop.counter }}">
+                                            <label class="form-check-label" for="topic{{ forloop.counter }}">
+                                                {{ topic.topic_name }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% else %}
+                            <p class="text-muted">No topics available</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-upload me-2"></i>Upload Resource
+                            </button>
+                            <a href="{% url 'my_resources' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<form method="post" class="mt-4">
-    {% csrf_token %}
-
-    <div class="mb-3">
-        <label for="title" class="form-label">Title</label>
-        <input type="text" class="form-control" id="title" name="title" required>
-    </div>
-
-    <div class="mb-3">
-        <label for="res_type" class="form-label">Type</label>
-        <select class="form-select" id="res_type" name="res_type" required>
-            <option value="Article">Article</option>
-            <option value="Video">Video</option>
-            <option value="Tutorial">Tutorial</option>
-            <option value="Documentation">Documentation</option>
-            <option value="Other">Other</option>
-        </select>
-    </div>
-
-    <div class="mb-3">
-        <label for="resource_url" class="form-label">Resource URL</label>
-        <input type="url" class="form-control" id="resource_url" name="resource_url" required
-               placeholder="https://example.com/resource">
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Topics (Optional)</label>
-        {% if topics %}
-        <div>
-            {% for topic in topics %}
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" name="topics"
-                       id="topic{{ forloop.counter }}" value="{{ topic.topic_name }}">
-                <label class="form-check-label" for="topic{{ forloop.counter }}">
-                    {{ topic.topic_name }}
-                </label>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <p class="text-muted">No topics available</p>
-        {% endif %}
-    </div>
-
-    <button type="submit" class="btn btn-primary">Upload Resource</button>
-    <a href="{% url 'my_resources' %}" class="btn btn-secondary">Cancel</a>
-</form>
-
+<style>
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+    }
+</style>
 {% endblock %}

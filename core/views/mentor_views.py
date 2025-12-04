@@ -95,10 +95,22 @@ def mentor_dashboard(request):
         .order_by("-create_time")[:5]
     )
 
+    feedback_given_count = Attempt.objects.filter(
+        problem__user=mentor,
+        feedback__isnull=False
+    ).exclude(feedback="").count()
+
     context = {
         "dashboard_data": dashboard_data,
         "pending_reviews": pending_reviews,
         "recent_problems": recent_problems,
+
+        "user_name": dashboard_data["name"] if dashboard_data else request.session.get('user_name', 'Mentor'),
+        "user_role": "Mentor",
+        "mentor_name": dashboard_data["name"] if dashboard_data else request.session.get('user_name', 'Mentor'),
+        "problems_created": dashboard_data["problems_created"] if dashboard_data else 0,
+        "students_helped": dashboard_data["students_mentored"] if dashboard_data else 0,
+        "feedback_given": feedback_given_count,
     }
     return render(request, "core/mentor_dashboard.html", context)
 

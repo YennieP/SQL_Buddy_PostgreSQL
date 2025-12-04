@@ -3,6 +3,7 @@
 {% block title %}My Attempts - SQL Buddy{% endblock %}
 
 {% block content %}
+<<<<<<< HEAD
 <div class="container-fluid px-4">
     <div class="row mb-4">
         <div class="col-12">
@@ -193,8 +194,281 @@
                     </div>
                     {% endif %}
                 </div>
+=======
+<!-- Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="text-center text-white py-4">
+            <h1 class="display-4 fw-bold mb-2">My Attempts History 📊</h1>
+            <p class="lead mb-0 opacity-90">Track your SQL learning journey</p>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Overview -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.95);">
+            <div class="card-body text-center p-3">
+                <h3 class="fw-bold text-primary mb-1">{{ total_attempts }}</h3>
+                <small class="text-muted text-uppercase">Total Attempts</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.95);">
+            <div class="card-body text-center p-3">
+                <h3 class="fw-bold text-success mb-1">{{ passed_count }}</h3>
+                <small class="text-muted text-uppercase">Passed</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.95);">
+            <div class="card-body text-center p-3">
+                <h3 class="fw-bold text-danger mb-1">{{ failed_count }}</h3>
+                <small class="text-muted text-uppercase">Failed</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.95);">
+            <div class="card-body text-center p-3">
+                <h3 class="fw-bold text-info mb-1">{{ avg_score }}%</h3>
+                <small class="text-muted text-uppercase">Avg Score</small>
+>>>>>>> origin/main
             </div>
         </div>
     </div>
 </div>
+<<<<<<< HEAD
+=======
+
+<!-- Filters Card -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-lg" style="background: rgba(255, 255, 255, 0.95);">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-4">
+                    <i class="bi bi-funnel text-primary me-2"></i>
+                    Filter Attempts (Dynamic SQL)
+                </h5>
+                <form method="GET" action="">
+                    <div class="row g-3">
+                        <!-- Date Range -->
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">From Date</label>
+                            <input type="date" name="date_from" class="form-control" value="{{ request.GET.date_from }}">
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">To Date</label>
+                            <input type="date" name="date_to" class="form-control" value="{{ request.GET.date_to }}">
+                        </div>
+                        
+                        <!-- Score Range -->
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">Min Score</label>
+                            <input type="number" name="min_score" class="form-control" placeholder="0" min="0" max="100" value="{{ request.GET.min_score }}">
+                        </div>
+                        
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">Max Score</label>
+                            <input type="number" name="max_score" class="form-control" placeholder="100" min="0" max="100" value="{{ request.GET.max_score }}">
+                        </div>
+                        
+                        <!-- Status Filter -->
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="">All</option>
+                                <option value="Passed" {% if request.GET.status == 'Passed' %}selected{% endif %}>Passed</option>
+                                <option value="Failed" {% if request.GET.status == 'Failed' %}selected{% endif %}>Failed</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Difficulty Filter -->
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Difficulty</label>
+                            <select name="difficulty" class="form-select">
+                                <option value="">All Levels</option>
+                                <option value="Easy" {% if request.GET.difficulty == 'Easy' %}selected{% endif %}>Easy</option>
+                                <option value="Medium" {% if request.GET.difficulty == 'Medium' %}selected{% endif %}>Medium</option>
+                                <option value="Hard" {% if request.GET.difficulty == 'Hard' %}selected{% endif %}>Hard</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Has Feedback Filter -->
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Feedback</label>
+                            <select name="has_feedback" class="form-select">
+                                <option value="">All</option>
+                                <option value="yes" {% if request.GET.has_feedback == 'yes' %}selected{% endif %}>With Feedback</option>
+                                <option value="no" {% if request.GET.has_feedback == 'no' %}selected{% endif %}>No Feedback</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Sort Order -->
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Sort By</label>
+                            <select name="sort" class="form-select">
+                                <option value="date_desc" {% if request.GET.sort == 'date_desc' %}selected{% endif %}>Newest First</option>
+                                <option value="date_asc" {% if request.GET.sort == 'date_asc' %}selected{% endif %}>Oldest First</option>
+                                <option value="score_desc" {% if request.GET.sort == 'score_desc' %}selected{% endif %}>Highest Score</option>
+                                <option value="score_asc" {% if request.GET.sort == 'score_asc' %}selected{% endif %}>Lowest Score</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <button type="submit" class="btn px-4 py-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: 600;">
+                            <i class="bi bi-search me-2"></i>Apply Filters
+                        </button>
+                        <a href="{% url 'my_attempts' %}" class="btn btn-outline-secondary px-4 py-2 ms-2" style="border-radius: 8px; font-weight: 600;">
+                            <i class="bi bi-x-circle me-2"></i>Clear
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Count -->
+<div class="row mb-3">
+    <div class="col-12">
+        <h5 class="text-white">
+            <i class="bi bi-list-check me-2"></i>
+            Showing {{ attempts|length }} attempts
+        </h5>
+    </div>
+</div>
+
+<!-- Attempts Table -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-0 shadow-lg" style="background: rgba(255, 255, 255, 0.95);">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead style="background-color: #f8f9fa;">
+                            <tr>
+                                <th class="px-4 py-4 fw-bold" style="font-size: 0.85rem;">ATTEMPT #</th>
+                                <th class="px-4 py-4 fw-bold" style="font-size: 0.85rem;">PROBLEM</th>
+                                <th class="px-4 py-4 fw-bold" style="font-size: 0.85rem;">DIFFICULTY</th>
+                                <th class="px-4 py-4 fw-bold text-center" style="font-size: 0.85rem;">SCORE</th>
+                                <th class="px-4 py-4 fw-bold" style="font-size: 0.85rem;">DATE</th>
+                                <th class="px-4 py-4 fw-bold text-center" style="font-size: 0.85rem;">STATUS</th>
+                                <th class="px-4 py-4 fw-bold text-center" style="font-size: 0.85rem;">FEEDBACK</th>
+                                <th class="px-4 py-4 fw-bold text-center" style="font-size: 0.85rem;">ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for attempt in attempts %}
+                            <tr>
+                                <td class="px-4 py-3">
+                                    <span class="badge bg-light text-dark px-3 py-2" style="font-size: 0.9rem;">
+                                        #{{ attempt.attempt_no }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <div>
+                                        <div class="fw-semibold">{{ attempt.problem_title }}</div>
+                                        <small class="text-muted">Problem ID: {{ attempt.problem_id }}</small>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3">
+                                    {% if attempt.difficulty == 'Easy' %}
+                                    <span class="badge px-3 py-2" style="background-color: #dcfce7; color: #15803d;">Easy</span>
+                                    {% elif attempt.difficulty == 'Medium' %}
+                                    <span class="badge px-3 py-2" style="background-color: #fef3c7; color: #a16207;">Medium</span>
+                                    {% else %}
+                                    <span class="badge px-3 py-2" style="background-color: #fee2e2; color: #b91c1c;">Hard</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    {% if attempt.score >= 90 %}
+                                    <div class="d-inline-block px-3 py-2 rounded-pill fw-bold" style="background-color: #dcfce7; color: #15803d;">
+                                        {{ attempt.score }}%
+                                    </div>
+                                    {% elif attempt.score >= 70 %}
+                                    <div class="d-inline-block px-3 py-2 rounded-pill fw-bold" style="background-color: #fef3c7; color: #a16207;">
+                                        {{ attempt.score }}%
+                                    </div>
+                                    {% elif attempt.score >= 60 %}
+                                    <div class="d-inline-block px-3 py-2 rounded-pill fw-bold" style="background-color: #fed7aa; color: #c2410c;">
+                                        {{ attempt.score }}%
+                                    </div>
+                                    {% else %}
+                                    <div class="d-inline-block px-3 py-2 rounded-pill fw-bold" style="background-color: #fee2e2; color: #b91c1c;">
+                                        {{ attempt.score }}%
+                                    </div>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="text-muted">
+                                        <i class="bi bi-calendar3 me-1"></i>{{ attempt.date }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    {% if attempt.status == 'Passed' %}
+                                    <span class="badge rounded-pill px-3 py-2" style="background-color: #10b981; font-size: 0.85rem;">
+                                        <i class="bi bi-check-lg me-1"></i>Passed
+                                    </span>
+                                    {% else %}
+                                    <span class="badge rounded-pill px-3 py-2" style="background-color: #ef4444; font-size: 0.85rem;">
+                                        <i class="bi bi-x-lg me-1"></i>Failed
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    {% if attempt.has_feedback %}
+                                    <i class="bi bi-chat-left-text-fill text-success" 
+                                       style="font-size: 1.2rem; cursor: pointer;" 
+                                       data-bs-toggle="tooltip" 
+                                       data-bs-placement="top" 
+                                       title="Feedback available - view in problem details"></i>
+                                    {% else %}
+                                    <i class="bi bi-chat-left-text text-muted" style="font-size: 1.2rem;"></i>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <button class="btn btn-sm btn-outline-primary" style="border-radius: 6px;">
+                                        <i class="bi bi-eye me-1"></i>View
+                                    </button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center py-5">
+                                    <i class="bi bi-inbox" style="font-size: 3rem; color: #cbd5e1;"></i>
+                                    <h5 class="mt-3 text-muted">No attempts found</h5>
+                                    <p class="text-muted">Try adjusting your filters</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table-hover tbody tr {
+        transition: all 0.2s ease;
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(102, 126, 234, 0.05);
+    }
+</style>
+<script>
+    // Enable tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+</script>
+>>>>>>> origin/main
 {% endblock %}

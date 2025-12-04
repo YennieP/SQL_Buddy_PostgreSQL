@@ -1,65 +1,271 @@
-{% extends 'core/base.html' %}
+{% extends 'core/base_dashboard.html' %}
 
-{% block title %}Create Problem{% endblock %}
+{% block title %}Create Problem - SQL Buddy{% endblock %}
 
 {% block content %}
-<h2>Create Problem</h2>
-
-<div class="mb-3">
-    <a href="{% url 'my_problems' %}" class="btn btn-secondary">Back to My Problems</a>
+<!-- Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="text-center text-white py-4">
+            <h1 class="display-4 fw-bold mb-2" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">Create New Problem 📝</h1>
+            <p class="lead mb-0 opacity-90">Design a SQL challenge for your students</p>
+        </div>
+    </div>
 </div>
 
-<form method="post" class="mt-4">
-    {% csrf_token %}
-
-    <div class="mb-3">
-        <label for="title" class="form-label">Title *</label>
-        <input type="text" class="form-control" id="title" name="title" required>
-    </div>
-
-    <div class="mb-3">
-        <label for="description" class="form-label">Description</label>
-        <textarea class="form-control" id="description" name="description" rows="4"></textarea>
-    </div>
-
-    <div class="mb-3">
-        <label for="correct_answer" class="form-label">Correct Answer (SQL) *</label>
-        <textarea class="form-control" id="correct_answer" name="correct_answer" rows="5" required></textarea>
-    </div>
-
-    <div class="mb-3">
-        <label for="difficulty" class="form-label">Difficulty *</label>
-        <select class="form-select" id="difficulty" name="difficulty" required>
-            <option value="Easy">Easy</option>
-            <option value="Medium" selected>Medium</option>
-            <option value="Hard">Hard</option>
-        </select>
-    </div>
-
-    <div class="mb-3">
-        <label for="scenario_no" class="form-label">Scenario Number (Optional)</label>
-        <input type="number" class="form-control" id="scenario_no" name="scenario_no">
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Topics</label>
-        {% if topics %}
-        <div>
-            {% for topic in topics %}
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" name="topics"
-                       id="topic_{{ forloop.counter }}" value="{{ topic.topic_name }}">
-                <label class="form-check-label" for="topic_{{ forloop.counter }}">
-                    {{ topic.topic_name }}
-                </label>
-            </div>
-            {% endfor %}
+<!-- Success Message -->
+{% if success %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-success alert-dismissible fade show shadow-lg" role="alert" style="border-radius: 15px; border: none;">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <strong>Success!</strong> Problem created successfully!
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-        {% endif %}
     </div>
+</div>
+{% endif %}
 
-    <button type="submit" class="btn btn-primary">Create Problem</button>
-    <a href="{% url 'my_problems' %}" class="btn btn-secondary">Cancel</a>
-</form>
+<!-- Create Problem Form -->
+<div class="row mb-5">
+    <div class="col-lg-10 mx-auto">
+        <div class="card border-0 shadow-lg" style="background: rgba(255, 255, 255, 0.95);">
+            <div class="card-header border-0 pt-4 pb-3 px-4" style="background: rgba(102, 126, 234, 0.1);">
+                <h4 class="mb-0 fw-bold">
+                    <i class="bi bi-file-earmark-code me-2" style="color: #667eea;"></i>
+                    Problem Details
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    
+                    <!-- Problem Title -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-card-heading me-2"></i>Problem Title
+                        </label>
+                        <input type="text" 
+                               name="title" 
+                               class="form-control form-control-lg" 
+                               placeholder="e.g., Find All Zombie Cats on Mars"
+                               required>
+                        <small class="form-text text-muted">Make it catchy and descriptive!</small>
+                    </div>
+                    
+                    <!-- Problem Description -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-text-paragraph me-2"></i>Problem Description
+                        </label>
+                        <textarea name="description" 
+                                  class="form-control" 
+                                  rows="6" 
+                                  placeholder="Describe the problem scenario, database schema, and what the student needs to accomplish..."
+                                  required></textarea>
+                        <small class="form-text text-muted">Be clear about the expected output and any constraints.</small>
+                    </div>
+                    
+                    <!-- Row: Difficulty + Topics -->
+                    <div class="row mb-4">
+                        <!-- Difficulty -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-speedometer2 me-2"></i>Difficulty Level
+                            </label>
+                            <select name="difficulty" class="form-select form-select-lg" required>
+                                <option value="">Select difficulty...</option>
+                                <option value="Easy">🟢 Easy</option>
+                                <option value="Medium">🟡 Medium</option>
+                                <option value="Hard">🔴 Hard</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Topics -->
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-tags me-2"></i>SQL Topics (select multiple)
+                            </label>
+                            <div class="border rounded p-3" style="background: #f8f9fa;">
+                                <div class="row">
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="topics" value="SELECT" id="topic1">
+                                            <label class="form-check-label" for="topic1">SELECT</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="topics" value="WHERE" id="topic2">
+                                            <label class="form-check-label" for="topic2">WHERE</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="topics" value="JOIN" id="topic3">
+                                            <label class="form-check-label" for="topic3">JOIN</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="topics" value="GROUP BY" id="topic4">
+                                            <label class="form-check-label" for="topic4">GROUP BY</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="topics" value="Aggregation" id="topic5">
+                                            <label class="form-check-label" for="topic5">Aggregation</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="topics" value="Subqueries" id="topic6">
+                                            <label class="form-check-label" for="topic6">Subqueries</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="topics" value="ORDER BY" id="topic7">
+                                            <label class="form-check-label" for="topic7">ORDER BY</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="topics" value="HAVING" id="topic8">
+                                            <label class="form-check-label" for="topic8">HAVING</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="topics" value="DISTINCT" id="topic9">
+                                            <label class="form-check-label" for="topic9">DISTINCT</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Expected Solution -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-code-square me-2"></i>Expected SQL Solution
+                        </label>
+                        <textarea name="solution" 
+                                  class="form-control" 
+                                  rows="8"
+                                  placeholder="SELECT zombie_name, hunger_level
+FROM Zombies
+WHERE hunger_level > 7
+ORDER BY hunger_level DESC;"
+                                  style="font-family: 'Courier New', monospace; background: #1e293b; color: #e2e8f0; border: none;"
+                                  required></textarea>
+                        <small class="form-text text-muted">This is the correct solution that will be used for grading.</small>
+                    </div>
+                    
+                    <!-- Example Output -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-table me-2"></i>Example Output (Optional)
+                        </label>
+                        <textarea name="example_output" 
+                                  class="form-control" 
+                                  rows="5"
+                                  placeholder="zombie_name    | hunger_level
+----------------------------
+Brain Muncher  | 9
+Hungry Bob     | 8"
+                                  style="font-family: 'Courier New', monospace;"></textarea>
+                        <small class="form-text text-muted">Show students what the expected output should look like.</small>
+                    </div>
+                    
+                    <!-- Database Setup (Optional) -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-database me-2"></i>Database Setup SQL (Optional)
+                        </label>
+                        <textarea name="setup_sql" 
+                                  class="form-control" 
+                                  rows="6"
+                                  placeholder="CREATE TABLE Zombies (
+    zombie_id INT PRIMARY KEY,
+    zombie_name VARCHAR(100),
+    hunger_level INT
+);
 
+INSERT INTO Zombies VALUES (1, 'Brain Muncher', 9);"
+                                  style="font-family: 'Courier New', monospace; background: #1e293b; color: #e2e8f0; border: none;"></textarea>
+                        <small class="form-text text-muted">SQL to create tables and insert test data.</small>
+                    </div>
+                    
+                    <!-- Row: Points + Time Limit -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-star me-2"></i>Points
+                            </label>
+                            <input type="number" 
+                                   name="points" 
+                                   class="form-control" 
+                                   value="100" 
+                                   min="10" 
+                                   max="500"
+                                   required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-clock me-2"></i>Time Limit (minutes)
+                            </label>
+                            <input type="number" 
+                                   name="time_limit" 
+                                   class="form-control" 
+                                   value="30" 
+                                   min="5" 
+                                   max="120">
+                            <small class="form-text text-muted">0 for no time limit</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Hints (Optional) -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-lightbulb me-2"></i>Hints for Students (Optional)
+                        </label>
+                        <textarea name="hints" 
+                                  class="form-control" 
+                                  rows="3"
+                                  placeholder="1. Start by selecting from the Zombies table
+2. Use WHERE clause to filter by hunger_level
+3. Don't forget to ORDER BY!"></textarea>
+                    </div>
+                    
+                    <!-- Submit Buttons -->
+                    <div class="d-flex gap-3 mt-5">
+                        <button type="submit" class="btn btn-lg px-5 py-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-weight: 700;">
+                            <i class="bi bi-check-circle me-2"></i>Create Problem
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-lg px-5 py-3" style="border-radius: 12px; font-weight: 600;" onclick="document.querySelector('form').reset()">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Clear Form
+                        </button>
+                        <a href="{% url 'mentor_dashboard' %}" class="btn btn-outline-primary btn-lg px-5 py-3" style="border-radius: 12px; font-weight: 600;">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    .form-check-input:checked {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+</style>
 {% endblock %}

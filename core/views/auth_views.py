@@ -129,3 +129,9 @@ def register_view(request):
             messages.error(request, f'Registration failed: {str(e)}')
     
     return render(request, 'core/register.html')
+
+def admin_dashboard(request):
+    """Admin Dashboard - 临时占位"""
+    return render(request, 'core/admin_dashboard.html', {
+        'admin': request.session.get('user_name', 'Admin')
+    })

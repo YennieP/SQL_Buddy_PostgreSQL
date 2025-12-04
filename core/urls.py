@@ -63,4 +63,5 @@ urlpatterns = [
     
     # Admin模块 (Person D添加后取消注释)
     # path('admin-panel/', include('core.urls.admin_urls')),
+    path('admin/dashboard/', auth_views.admin_dashboard, name='admin_dashboard'),  # 临时指向home或创建空view
 ]

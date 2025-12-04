@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - SQL Buddy</title>
+    <title>Login - SQL Buddy</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
@@ -17,15 +17,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px 0;
         }
-        .register-card {
+        .login-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            padding: 40px;
+            padding: 50px 40px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 500px;
+            max-width: 450px;
             width: 100%;
         }
         .logo {
@@ -57,7 +56,7 @@
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-        .btn-register {
+        .btn-login {
             width: 100%;
             padding: 14px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -69,38 +68,9 @@
             margin-top: 20px;
             transition: all 0.3s;
         }
-        .btn-register:hover {
+        .btn-login:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
-        .role-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .role-btn {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #e5e7eb;
-            background: white;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-            font-weight: 600;
-        }
-        .role-btn:hover {
-            border-color: #667eea;
-            background: #f3f4f6;
-        }
-        .role-btn.active {
-            border-color: #667eea;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        .alert {
-            border-radius: 10px;
-            margin-bottom: 20px;
         }
         .back-home {
             text-align: center;
@@ -114,12 +84,32 @@
         .back-home a:hover {
             text-decoration: underline;
         }
+        .alert {
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .test-accounts {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 0.85rem;
+        }
+        .test-accounts h6 {
+            color: #667eea;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .test-accounts p {
+            margin: 5px 0;
+            color: #6b7280;
+        }
     </style>
 </head>
 <body>
-    <div class="register-card">
+    <div class="login-card">
         <div class="logo">🎯</div>
-        <h2>Join SQL Buddy!</h2>
+        <h2>Welcome Back!</h2>
 
         {% if messages %}
             {% for message in messages %}
@@ -129,18 +119,9 @@
             {% endfor %}
         {% endif %}
 
-        <form method="POST" action="{% url 'register' %}">
+        <form method="POST" action="{% url 'login' %}">
             {% csrf_token %}
 
-            <!-- Full Name -->
-            <div class="mb-3">
-                <label for="name" class="form-label">
-                    <i class="bi bi-person me-2"></i>Full Name
-                </label>
-                <input type="text" class="form-control" id="name" name="name" placeholder="Enter your full name" required>
-            </div>
-
-            <!-- Email -->
             <div class="mb-3">
                 <label for="email" class="form-label">
                     <i class="bi bi-envelope me-2"></i>Email
@@ -148,66 +129,32 @@
                 <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
             </div>
 
-            <!-- Password -->
             <div class="mb-3">
                 <label for="password" class="form-label">
                     <i class="bi bi-lock me-2"></i>Password
                 </label>
-                <input type="password" class="form-control" id="password" name="password" placeholder="Create a password" required>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
             </div>
 
-            <!-- Confirm Password -->
-            <div class="mb-3">
-                <label for="confirm_password" class="form-label">
-                    <i class="bi bi-lock-fill me-2"></i>Confirm Password
-                </label>
-                <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required>
-            </div>
-
-            <!-- Role Selector -->
-            <div class="mb-3">
-                <label class="form-label">Register As:</label>
-                <div class="role-selector">
-                    <div class="role-btn active" onclick="selectRole('student')">
-                        <i class="bi bi-person-circle"></i><br>
-                        <small>Student</small>
-                    </div>
-                    <div class="role-btn" onclick="selectRole('mentor')">
-                        <i class="bi bi-person-workspace"></i><br>
-                        <small>Mentor</small>
-                    </div>
-                </div>
-                <input type="hidden" name="role" id="roleInput" value="student">
-            </div>
-
-            <!-- Submit Button -->
-            <button type="submit" class="btn btn-register">
-                <i class="bi bi-person-plus me-2"></i>Create Account
+            <button type="submit" class="btn btn-login">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Login
             </button>
         </form>
 
-        <!-- Back to Login -->
+        <div class="test-accounts">
+            <h6>Test Accounts (Phase 4):</h6>
+            <p><strong>Student:</strong> pizza4life@email.com</p>
+            <p><strong>Mentor:</strong> copypaste@email.com</p>
+            <p><strong>Admin:</strong> dank.memes@email.com</p>
+            <p class="mt-2"><em>Passwords in dbDML.sql</em></p>
+        </div>
+
         <div class="back-home">
-            <a href="{% url 'login' %}">
-                <i class="bi bi-arrow-left me-1"></i>Already have an account? Login
+            <a href="{% url 'home' %}">
+                <i class="bi bi-arrow-left me-1"></i>Back to Home
             </a>
         </div>
     </div>
-
-    <script>
-        function selectRole(role) {
-            // Remove active class from all buttons
-            document.querySelectorAll('.role-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-
-            // Add active class to clicked button
-            event.currentTarget.classList.add('active');
-
-            // Update hidden input
-            document.getElementById('roleInput').value = role;
-        }
-    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

@@ -1,162 +1,184 @@
-{% extends 'core/base.html' %}
+{% extends 'core/base_dashboard.html' %}
 
-{% block title %}Mentor Dashboard{% endblock %}
+{% block title %}Mentor Dashboard - SQL Buddy{% endblock %}
 
 {% block content %}
-<h2>Mentor Dashboard</h2>
-
-<ul class="list-group mt-4 mb-4">
-    <li class="list-group-item">
-        <a href="{% url 'my_problems' %}">My Problems</a>
-    </li>
-    <li class="list-group-item">
-        <a href="{% url 'create_problem' %}">Create Problem</a>
-    </li>
-    <li class="list-group-item">
-        <a href="{% url 'review_attempts' %}">Review Attempts</a>
-    </li>
-    <li class="list-group-item">
-        <a href="{% url 'my_resources' %}">My Resources</a>
-    </li>
-    <li class="list-group-item">
-        <a href="{% url 'upload_resource' %}">Upload Resource</a>
-    </li>
-    <li class="list-group-item">
-        <a href="{% url 'mentor_nl_query' %}">Natural Language SQL Query</a>
-    </li>
-    <li class="list-group-item">
-        <a href="{% url 'notification_center' %}">Notifications</a>
-    </li>
-</ul>
-
-<div class="row">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                Profile
-            </div>
-            <div class="card-body">
-                {% if dashboard_data %}
-                <p class="mb-1"><strong>Name:</strong> {{ dashboard_data.name }}</p>
-                <p class="mb-0"><strong>User ID:</strong> {{ dashboard_data.user_id }}</p>
-                {% else %}
-                <p class="mb-0">Profile summary not available.</p>
-                {% endif %}
-            </div>
+<!-- Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="text-center text-white py-5">
+            <h1 class="display-3 fw-bold mb-2" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">Welcome back, {{ mentor_name }}! 👨‍🏫</h1>
+            <p class="lead mb-0 opacity-90">Help students master SQL</p>
         </div>
     </div>
+</div>
 
-    <div class="col-md-4 mt-3 mt-md-0">
-        <div class="card">
-            <div class="card-header">
-                Activity
+<!-- Stats Cards -->
+<div class="row g-4 mb-5 justify-content-center">
+
+<!-- Problems Created Card - Make it clickable -->
+<div class="col-lg-4 col-md-6">
+    <div class="card stat-card border-0 shadow-lg h-100" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
+        <div class="card-body text-center p-5">
+            <div class="mx-auto rounded-circle d-flex align-items-center justify-content-center mb-4" 
+                 style="width: 100px; height: 100px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);">
+                <i class="bi bi-file-earmark-code text-white" style="font-size: 3rem;"></i>
             </div>
-            <div class="card-body">
-                {% if dashboard_data %}
-                <p class="mb-1">
-                    <strong>Problems created:</strong>
-                    {{ dashboard_data.problems_created }}
-                </p>
-                <p class="mb-1">
-                    <strong>Resources uploaded:</strong>
-                    {{ dashboard_data.resources_uploaded }}
-                </p>
-                <p class="mb-0">
-                    <strong>Students mentored:</strong>
-                    {{ dashboard_data.students_mentored }}
-                </p>
-                {% else %}
-                <p class="mb-0">No activity data yet.</p>
-                {% endif %}
-            </div>
+            <h2 class="display-3 fw-bold mb-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ problems_created }}</h2>
+            <p class="text-muted text-uppercase mb-0 fw-bold" style="letter-spacing: 2px; font-size: 0.9rem;">Problems Created</p>
         </div>
     </div>
+</div>
 
-    <div class="col-md-4 mt-3 mt-md-0">
-        <div class="card">
-            <div class="card-header">
-                Student Performance
+<!-- Students Helped Card -->
+<div class="col-lg-4 col-md-6">
+    <div class="card stat-card border-0 shadow-lg h-100" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
+        <div class="card-body text-center p-5">
+            <div class="mx-auto rounded-circle d-flex align-items-center justify-content-center mb-4" 
+                 style="width: 100px; height: 100px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); box-shadow: 0 8px 16px rgba(240, 147, 251, 0.4);">
+                <i class="bi bi-people text-white" style="font-size: 3rem;"></i>
             </div>
-            <div class="card-body">
-                {% if dashboard_data %}
-                <p class="mb-0">
-                    <strong>Average student score:</strong>
-                    {% if dashboard_data.avg_student_score %}
-                    {{ dashboard_data.avg_student_score|floatformat:2 }}
-                    {% else %}
-                    N/A
-                    {% endif %}
-                </p>
-                {% else %}
-                <p class="mb-0">No student data yet.</p>
-                {% endif %}
-                <div class="mt-3">
-                    <a href="{% url 'review_attempts' %}" class="btn btn-outline-primary btn-sm">
-                        Review attempts
-                    </a>
+            <h2 class="display-3 fw-bold mb-3" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ students_helped }}</h2>
+            <p class="text-muted text-uppercase mb-0 fw-bold" style="letter-spacing: 2px; font-size: 0.9rem;">Students Helped</p>
+        </div>
+    </div>
+</div> 
+
+<!-- the Feedback Given card: -->
+<div class="col-lg-4 col-md-6">
+    <a href="{% url 'review_attempts' %}" style="text-decoration: none; color: inherit;">
+        <div class="card stat-card border-0 shadow-lg h-100" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); cursor: pointer;">
+            <div class="card-body text-center p-5">
+                <div class="mx-auto rounded-circle d-flex align-items-center justify-content-center mb-4" 
+                     style="width: 100px; height: 100px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); box-shadow: 0 8px 16px rgba(79, 172, 254, 0.4);">
+                    <i class="bi bi-chat-left-text text-white" style="font-size: 3rem;"></i>
+                </div>
+                <h2 class="display-3 fw-bold mb-3" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ feedback_given }}</h2>
+                <p class="text-muted text-uppercase mb-0 fw-bold" style="letter-spacing: 2px; font-size: 0.9rem;">Feedback Given</p>
+            </div>
+        </div>
+    </a>
+</div>
+</div>
+  
+
+<!-- Recent Reviews Table -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-0 shadow-lg" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
+            <div class="card-header border-0 pt-4 pb-3 px-4" style="background: rgba(102, 126, 234, 0.1);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0 fw-bold">
+                        <i class="bi bi-clipboard-check me-2" style="color: #667eea;"></i>
+                        Recent Submissions to Review
+                    </h4>
+                    <span class="badge px-3 py-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-size: 0.9rem;">Last 5</span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead style="background-color: rgba(248, 249, 250, 0.5);">
+                            <tr>
+                                <th class="px-4 py-4 text-muted fw-bold" style="font-size: 0.85rem;">STUDENT</th>
+                                <th class="px-4 py-4 text-muted fw-bold" style="font-size: 0.85rem;">PROBLEM</th>
+                                <th class="px-4 py-4 text-muted fw-bold text-center" style="font-size: 0.85rem;">SCORE</th>
+                                <th class="px-4 py-4 text-muted fw-bold" style="font-size: 0.85rem;">TIME</th>
+                                <th class="px-4 py-4 text-muted fw-bold text-center" style="font-size: 0.85rem;">STATUS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for review in recent_reviews %}
+                            <tr>
+                                <td class="px-4 py-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3" 
+                                             style="width: 40px; height: 40px;">
+                                            <i class="bi bi-person-fill text-primary"></i>
+                                        </div>
+                                        <span class="fw-semibold">{{ review.student }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <span class="fw-semibold">{{ review.problem }}</span>
+                                </td>
+                                <td class="px-4 py-4 text-center">
+                                    {% if review.score >= 90 %}
+                                    <div class="d-inline-block px-4 py-2 rounded-pill fw-bold" style="background-color: #dcfce7; color: #15803d;">
+                                        {{ review.score }}%
+                                    </div>
+                                    {% elif review.score >= 70 %}
+                                    <div class="d-inline-block px-4 py-2 rounded-pill fw-bold" style="background-color: #fef3c7; color: #a16207;">
+                                        {{ review.score }}%
+                                    </div>
+                                    {% elif review.score >= 60 %}
+                                    <div class="d-inline-block px-4 py-2 rounded-pill fw-bold" style="background-color: #fed7aa; color: #c2410c;">
+                                        {{ review.score }}%
+                                    </div>
+                                    {% else %}
+                                    <div class="d-inline-block px-4 py-2 rounded-pill fw-bold" style="background-color: #fee2e2; color: #b91c1c;">
+                                        {{ review.score }}%
+                                    </div>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-4">
+                                    <span class="text-muted">
+                                        <i class="bi bi-clock me-2"></i>{{ review.date }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4 text-center">
+                                    {% if review.has_feedback %}
+                                    <span class="badge rounded-pill fw-semibold" style="background-color: #10b981; padding: 10px 20px; font-size: 0.9rem;">
+                                        <i class="bi bi-check-lg me-1"></i>Reviewed
+                                    </span>
+                                    {% else %}
+                                    <span class="badge rounded-pill fw-semibold" style="background-color: #f59e0b; padding: 10px 20px; font-size: 0.9rem;">
+                                        <i class="bi bi-hourglass-split me-1"></i>Pending
+                                    </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="mt-4">
-    <h4>Pending Reviews</h4>
-    {% if pending_reviews %}
-    <table class="table table-bordered mt-2">
-        <thead>
-            <tr>
-                <th>Student</th>
-                <th>Problem</th>
-                <th>Score</th>
-                <th>Submitted</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for attempt in pending_reviews %}
-            <tr>
-                <td>{{ attempt.student.user.name }}</td>
-                <td>{{ attempt.problem.title }}</td>
-                <td>{{ attempt.score }}</td>
-                <td>{{ attempt.submit_time }}</td>
-                <td>
-                    <a href="{% url 'review_attempts' %}?problem_id={{ attempt.problem.problem_id }}"
-                       class="btn btn-sm btn-primary">Review</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p class="text-muted">No pending reviews.</p>
-    {% endif %}
+<!-- Action Buttons -->
+<div class="row">
+    <div class="col-12 text-center">
+        <a href="{% url 'create_problem' %}" class="btn btn-lg px-5 py-3 me-3 shadow-lg"
+           style="background: white; color: #667eea; border: none; border-radius: 50px; font-weight: 700; font-size: 1.1rem;">
+            <i class="bi bi-plus-circle me-2"></i>Create Problem
+        </a>
+        <a href="{% url 'review_attempts' %}" class="btn btn-lg px-5 py-3 shadow-lg" 
+           style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white; border-radius: 50px; font-weight: 700; font-size: 1.1rem; backdrop-filter: blur(10px);">
+            <i class="bi bi-clipboard-check me-2"></i>Review Attempts
+        </a>
+    </div>
 </div>
 
-<div class="mt-4">
-    <h4>Recent Problems</h4>
-    {% if recent_problems %}
-    <table class="table table-bordered mt-2">
-        <thead>
-            <tr>
-                <th>Problem</th>
-                <th>Difficulty</th>
-                <th>Created</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for problem in recent_problems %}
-            <tr>
-                <td>{{ problem.title }}</td>
-                <td>{{ problem.difficulty }}</td>
-                <td>{{ problem.create_time }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p class="text-muted">No problems created yet.</p>
-    {% endif %}
-</div>
-
+<style>
+    .stat-card {
+        transition: all 0.3s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-12px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+    .table-hover tbody tr {
+        transition: all 0.2s ease;
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(248, 249, 250, 0.8);
+    }
+    .btn:hover {
+        transform: translateY(-3px);
+        transition: all 0.3s ease;
+    }
+</style>
 {% endblock %}
+

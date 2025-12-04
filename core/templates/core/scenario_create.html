@@ -1,16 +1,119 @@
-{% extends 'core/base.html' %}
+{% extends 'core/base_dashboard.html' %}
 
-{% block title %}Create Scenario{% endblock %}
+{% block title %}Create Scenario - SQL Buddy{% endblock %}
 
 {% block content %}
-<h2>Create Scenario</h2>
+<div class="container-fluid px-4">
+    <!-- Breadcrumb -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'student_dashboard' %}" class="text-white">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'scenario_list' %}" class="text-white">My Scenarios</a></li>
+                    <li class="breadcrumb-item active text-white-50">Create New</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
 
-<form method="post">
-    {% csrf_token %}
-    <label class="form-label">Scenario Description</label>
-    <textarea name="description" class="form-control" rows="5"></textarea>
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="text-white">
+                <i class="bi bi-plus-circle me-2"></i>Create New Scenario
+            </h1>
+            <p class="text-white-50">Describe your custom business case to generate personalized SQL problems</p>
+        </div>
+    </div>
 
-    <button class="btn btn-primary mt-3">Create</button>
-</form>
+    <!-- Create Form -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg" style="background: rgba(255, 255, 255, 0.95);">
+                <div class="card-body p-5">
+                    <h3 class="mb-4">
+                        <i class="bi bi-lightbulb me-2 text-warning"></i>Scenario Description
+                    </h3>
 
+                    <form method="POST" action="{% url 'scenario_create' %}">
+                        {% csrf_token %}
+
+                        <div class="mb-4">
+                            <label for="description" class="form-label fw-semibold">
+                                Describe your scenario:
+                            </label>
+                            <textarea name="description" 
+                                      id="description"
+                                      class="form-control form-control-lg" 
+                                      rows="8"
+                                      placeholder="Example: A bookstore database with tables for books, authors, customers, and orders. Students should practice queries involving inventory management, sales analysis, and customer recommendations."
+                                      required
+                                      style="font-size: 1rem;"></textarea>
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Provide detailed context about your business case. The AI will use this to generate relevant SQL problems.
+                            </small>
+                        </div>
+
+                        <!-- Tips -->
+                        <div class="alert alert-info border-0">
+                            <h6 class="mb-2"><i class="bi bi-stars me-2"></i>Tips for great scenarios:</h6>
+                            <ul class="mb-0 small">
+                                <li>Describe the business domain (e.g., hospital, e-commerce, library)</li>
+                                <li>Mention key entities and relationships</li>
+                                <li>Include specific data types or operations you want to practice</li>
+                                <li>Be specific about the complexity level you're targeting</li>
+                            </ul>
+                        </div>
+
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle me-2"></i>Create Scenario
+                            </button>
+                            <a href="{% url 'scenario_list' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Example Scenarios -->
+            <div class="card border-0 shadow-sm mt-4" style="background: rgba(255, 255, 255, 0.9);">
+                <div class="card-body">
+                    <h6 class="text-muted mb-3">
+                        <i class="bi bi-bookmark me-2"></i>Example Scenarios:
+                    </h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded bg-light">
+                                <strong class="d-block mb-1">🏥 Hospital Management</strong>
+                                <small class="text-muted">Track patients, doctors, appointments, and medical records...</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded bg-light">
+                                <strong class="d-block mb-1">🛒 E-commerce Platform</strong>
+                                <small class="text-muted">Manage products, customers, orders, and shipping...</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded bg-light">
+                                <strong class="d-block mb-1">📚 University System</strong>
+                                <small class="text-muted">Handle students, courses, enrollments, and grades...</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded bg-light">
+                                <strong class="d-block mb-1">🎬 Movie Database</strong>
+                                <small class="text-muted">Track movies, actors, directors, and ratings...</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

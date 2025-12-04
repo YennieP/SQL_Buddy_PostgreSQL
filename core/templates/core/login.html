@@ -72,6 +72,12 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
         }
+        .divider {
+            text-align: center;
+            margin: 25px 0;
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
         .back-home {
             text-align: center;
             margin-top: 20px;
@@ -108,9 +114,10 @@
 </head>
 <body>
     <div class="login-card">
-        <div class="logo">🎯</div>
+        <div class="logo">🎯️</div>
         <h2>Welcome Back!</h2>
 
+        <!-- Django Messages -->
         {% if messages %}
             {% for message in messages %}
                 <div class="alert alert-{{ message.tags }}">
@@ -119,28 +126,53 @@
             {% endfor %}
         {% endif %}
 
+        <!-- Login Form -->
         <form method="POST" action="{% url 'login' %}">
             {% csrf_token %}
 
+            <!-- Email (修改为email以匹配后端) -->
             <div class="mb-3">
                 <label for="email" class="form-label">
                     <i class="bi bi-envelope me-2"></i>Email
                 </label>
-                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+                <input type="email"
+                       class="form-control"
+                       id="email"
+                       name="email"
+                       placeholder="Enter your email"
+                       required>
             </div>
 
+            <!-- Password -->
             <div class="mb-3">
                 <label for="password" class="form-label">
                     <i class="bi bi-lock me-2"></i>Password
                 </label>
-                <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+                <input type="password"
+                       class="form-control"
+                       id="password"
+                       name="password"
+                       placeholder="Enter your password"
+                       required>
             </div>
 
+            <!-- Submit Button -->
             <button type="submit" class="btn btn-login">
                 <i class="bi bi-box-arrow-in-right me-2"></i>Login
             </button>
         </form>
 
+        <!-- Register Link -->
+        <div class="text-center mt-3">
+            <p class="text-muted mb-0">
+                Don't have an account? 
+                <a href="{% url 'register' %}" class="text-decoration-none fw-semibold" style="color: #667eea;">
+                    Register here
+                </a>
+            </p>
+        </div>
+
+        <!-- Test Accounts Info -->
         <div class="test-accounts">
             <h6>Test Accounts (Phase 4):</h6>
             <p><strong>Student:</strong> pizza4life@email.com</p>
@@ -149,6 +181,7 @@
             <p class="mt-2"><em>Passwords in dbDML.sql</em></p>
         </div>
 
+        <!-- Back to Home -->
         <div class="back-home">
             <a href="{% url 'home' %}">
                 <i class="bi bi-arrow-left me-1"></i>Back to Home

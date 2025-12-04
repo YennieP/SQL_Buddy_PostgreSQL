@@ -94,11 +94,24 @@ def student_dashboard(request):
         .filter(difficulty__in=["Easy", "Medium"])
         .order_by("difficulty", "problem_id")[:5]
     )
+    problems_passed = (
+        Attempt.objects.filter(student=student, score=100.0)
+        .values('problem_id')
+        .distinct()
+        .count()
+    )
 
     context = {
         "summary": summary,
         "recent_attempts": recent_attempts,
         "recommended_problems": recommended_problems,
+
+        "student_name": summary["name"] if summary else request.session.get('user_name', 'Student'),
+        "user_name": summary["name"] if summary else request.session.get('user_name', 'Student'),
+        "user_role": "Student",
+        "total_attempts": summary["total_attempts"] if summary else 0,
+        "avg_score": round(summary["average_score"], 1) if (summary and summary["average_score"]) else 0,
+        "problems_passed": problems_passed,
     }
     return render(request, "core/student_dashboard.html", context)
 

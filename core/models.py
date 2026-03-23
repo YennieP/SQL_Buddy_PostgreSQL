@@ -21,7 +21,7 @@ class User(models.Model):
     
     class Meta:
         managed = False
-        db_table = 'User'
+        db_table = '"user"'
     
     def __str__(self):
         return f"{self.name} ({self.email})"
@@ -51,7 +51,7 @@ class Student(models.Model):
     
     class Meta:
         managed = False
-        db_table = 'Student'
+        db_table = 'student'
     
     def __str__(self):
         return f"Student: {self.user.name}"
@@ -71,7 +71,7 @@ class Mentor(models.Model):
     
     class Meta:
         managed = False
-        db_table = 'Mentor'
+        db_table = 'mentor'
     
     def __str__(self):
         return f"Mentor: {self.user.name}"
@@ -90,7 +90,7 @@ class Admin(models.Model):
     
     class Meta:
         managed = False
-        db_table = 'Admin'
+        db_table = 'admin'
     
     def __str__(self):
         return f"Admin: {self.user.name}"
@@ -106,7 +106,7 @@ class Topic(models.Model):
     
     class Meta:
         managed = False
-        db_table = 'Topic'
+        db_table = 'topic'
     
     def __str__(self):
         return self.topic_name
@@ -125,7 +125,7 @@ class Scenario(models.Model):
     
     class Meta:
         managed = False
-        db_table = 'Scenario'
+        db_table = 'scenario'
     
     def __str__(self):
         return f"Scenario #{self.scenario_no}"
@@ -154,7 +154,7 @@ class Problem(models.Model):
     
     class Meta:
         managed = False
-        db_table = 'Problem'
+        db_table = 'problem'
     
     def __str__(self):
         return f"{self.title} ({self.difficulty})"
@@ -189,7 +189,7 @@ class Attempt(models.Model):
     
     class Meta:
         managed = False
-        db_table = 'Attempt'
+        db_table = 'attempt'
         unique_together = (('student', 'problem', 'attempt_no'),)
     
     def __str__(self):
@@ -214,7 +214,7 @@ class HaveTopic(models.Model):
     
     class Meta:
         managed = False
-        db_table = 'Have_topic'
+        db_table = 'have_topic'
         unique_together = (('problem', 'topic'),)
 
 
@@ -235,7 +235,7 @@ class Resource(models.Model):
     
     class Meta:
         managed = False
-        db_table = 'Resource'
+        db_table = 'resource'
     
     def __str__(self):
         return f"{self.title} ({self.res_type})"
@@ -257,7 +257,7 @@ class ResourceTopic(models.Model):
     
     class Meta:
         managed = False
-        db_table = 'ResourceTopic'
+        db_table = 'resourceTopic'
         unique_together = (('resource', 'topic'),)
 
 
@@ -277,7 +277,7 @@ class Access(models.Model):
     
     class Meta:
         managed = False
-        db_table = 'Access'
+        db_table = 'access'
         unique_together = (('resource', 'student'),)
 
 
@@ -290,7 +290,7 @@ class Notification(models.Model):
     
     class Meta:
         managed = False
-        db_table = 'Notification'
+        db_table = 'notification'
     
     def __str__(self):
         return f"Notification #{self.noti_id}"
@@ -311,7 +311,7 @@ class Send(models.Model):
     
     class Meta:
         managed = False
-        db_table = 'Send'
+        db_table = 'send'
         unique_together = (('sender', 'notification'),)
 
 
@@ -330,5 +330,5 @@ class Receive(models.Model):
     
     class Meta:
         managed = False
-        db_table = 'Receive'
+        db_table = 'receive'
         unique_together = (('receiver', 'notification'),)

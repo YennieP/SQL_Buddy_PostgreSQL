@@ -26,6 +26,7 @@ db.sqlite3
 db.sqlite3-journal
 media/
 staticfiles/
+*.sqlite3
 
 # Environment Variables
 .env
@@ -70,3 +71,4 @@ htmlcov/
 build/
 dist/
 *.egg-info/
+*.sqlite3

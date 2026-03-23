@@ -5,34 +5,35 @@ import os
 import re
 from typing import List, Dict
 
+import google.generativeai as genai
 from django.db import transaction
 from django.utils import timezone
 
 from core.models import User, Mentor, Problem, Scenario, Topic, HaveTopic
 
-from openai import OpenAI
+def _get_model():
+    """每次调用时初始化，确保读取最新的环境变量"""
+    genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+    return genai.GenerativeModel(
+        model_name=os.getenv("GEMINI_MODEL", "gemini-2.0-flash-lite"),
+        generation_config={"response_mime_type": "application/json"},
+    )
 
-client = client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def _get_system_llm_mentor() -> Mentor:
     """
-    A fixed account for LLM problem generation:
-        name:  OpenAIGenerator
+    AI 生成题目使用的固定系统账号：
+        name:  GeminiGenerator
         email: llm.generator@gmail.com
-
-    When creating at first time:
-        1 if User not exsit, create User
-        2 if Mentor not exsit, create Mentor
-    Use this same account for problem generation.
+    首次调用时自动创建，后续复用同一账号。
     """
     user, _ = User.objects.get_or_create(
         email="llm.generator@gmail.com",
         defaults={
-            "name": "OpenAIGenerator",
+            "name": "GeminiGenerator",
             "password": "llm_system_generated",
         },
     )
-
     mentor, _ = Mentor.objects.get_or_create(
         user=user,
         defaults={
@@ -40,24 +41,19 @@ def _get_system_llm_mentor() -> Mentor:
             "problems_created": 0,
         },
     )
-
     return mentor
 
 
 def handle_llm_topics(problem: Problem, topic_names: List[str]):
-    """
-    create new topic and update have_topic
-    """
+    """创建 Topic 并建立 Have_topic 关联，忽略重复"""
     for name in topic_names:
         name = (name or "").strip()
         if not name:
             continue
-
-        topic, _created = Topic.objects.get_or_create(
+        topic, _ = Topic.objects.get_or_create(
             topic_name=name,
             defaults={"description": ""},
         )
-        # use unique_together to avoid repeating
         HaveTopic.objects.get_or_create(problem=problem, topic=topic)
 
 
@@ -67,82 +63,81 @@ def _call_llm_for_scenario(
     num_problems: int,
 ) -> List[Dict]:
     """
-        [
-          {
-            "title": "...",
-            "description": "...",
-            "correct_sql": "...",
-            "topics": ["...", ...]
-          },
-          ...
-        ]
+    调用 Gemini 根据场景生成 SQL 题目，返回结构：
+    [
+      {
+        "title": "...",
+        "description": "...",
+        "correct_sql": "...",
+        "topics": ["...", ...]
+      },
+      ...
+    ]
     """
+    prompt = f"""
+You are helping to design SQL practice problems for a SQL learning platform.
 
-    # clarify the table structure to avoid invalid field value
-    system_prompt = (
-        "You are helping to design SQL practice problems for a MySQL learning platform.\n"
-        "The core tables are:\n\n"
-        "1) Problem table:\n"
-        "   CREATE TABLE Problem (\n"
-        "       problem_id INT PRIMARY KEY AUTO_INCREMENT,\n"
-        "       user_id INT NOT NULL,\n"
-        "       correct_answer TEXT NOT NULL,\n"
-        "       create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n"
-        "       title VARCHAR(200) NOT NULL,\n"
-        "       difficulty ENUM('Easy', 'Medium', 'Hard') NOT NULL,\n"
-        "       scenario_no INT,\n"
-        "       description TEXT\n"
-        "   );\n\n"
-        "2) Topic table:\n"
-        "   CREATE TABLE Topic (\n"
-        "       topic_name VARCHAR(100) PRIMARY KEY,\n"
-        "       description TEXT,\n"
-        "       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n"
-        "   );\n\n"
-        "3) Have_topic table (relationship between Problem and Topic):\n"
-        "   CREATE TABLE Have_topic (\n"
-        "       problem_id INT,\n"
-        "       topic_name VARCHAR(100),\n"
-        "       PRIMARY KEY (problem_id, topic_name)\n"
-        "   );\n\n"
-        "For each generated problem:\n"
-        "- title must be at most 200 characters.\n"
-        "- topics must be short strings (each <= 100 characters) suitable for Topic.topic_name.\n"
-        "- The SQL must be a valid MySQL SELECT query that could be stored in Problem.correct_answer.\n"
-        "- Difficulty will be stored as 'Easy', 'Medium', or 'Hard'. You do not need to output difficulty in JSON.\n"
-        "You must return data that can be directly stored into these tables without violating their constraints."
-    )
+The core tables are:
 
-    user_prompt = f"""
+1) Problem table:
+   CREATE TABLE Problem (
+       problem_id INT PRIMARY KEY AUTO_INCREMENT,
+       user_id INT NOT NULL,
+       correct_answer TEXT NOT NULL,
+       create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+       title VARCHAR(200) NOT NULL,
+       difficulty ENUM('Easy', 'Medium', 'Hard') NOT NULL,
+       scenario_no INT,
+       description TEXT
+   );
+
+2) Topic table:
+   CREATE TABLE Topic (
+       topic_name VARCHAR(100) PRIMARY KEY,
+       description TEXT,
+       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   );
+
+3) Have_topic table (relationship between Problem and Topic):
+   CREATE TABLE Have_topic (
+       problem_id INT,
+       topic_name VARCHAR(100),
+       PRIMARY KEY (problem_id, topic_name)
+   );
+
+For each generated problem:
+- title must be at most 200 characters.
+- topics must be short strings (each <= 100 characters) suitable for Topic.topic_name.
+- The SQL must be a valid MySQL SELECT query stored in Problem.correct_answer.
+- Difficulty will be stored as 'Easy', 'Medium', or 'Hard'. Do NOT include difficulty in JSON.
+Return data that can be directly stored into these tables without violating constraints.
+
 We have the following learning scenario for a student:
 
 Scenario description:
 {scenario.scenario_description}
 
-Please create {num_problems} SQL query problems in English for this scenario.
+Please create {num_problems} SQL query problem(s) in English for this scenario.
 
 For each problem return a JSON object with:
 - title: short problem title (<= 200 characters)
-- A description **starting with a complete database schema** in this exact format:
-    Schema: \n
-    Table1(field1, field2, …)\n
-    Table2(field1, field2, …)\n
-    …
-    Rules for schema:
-    - Only include tables needed for the problem.
-    - Table and column names MUST match the SQL answer.
-    - Keep tables small (2–8 columns each).
-    - Use meaningful names related to the scenario.
+- description: start with a complete database schema in this exact format:
+    Schema:
+    Table1(field1, field2, ...)
+    Table2(field1, field2, ...)
+    ...
+  Rules for schema:
+  - Only include tables needed for the problem.
+  - Table and column names MUST match the SQL answer exactly.
+  - Keep tables small (2-8 columns each).
+  - Use meaningful names related to the scenario.
+  After the schema, include a plain-English problem statement.
+- correct_sql: a valid MySQL SELECT statement matching the schema exactly.
+- topics: a list of 1-3 short topic tags (<= 100 characters each).
 
-- After the schema, include a plain-English problem statement.
-- A valid MySQL SELECT statement that matches the schema exactly.
-- A list of 1–3 short topic tags (<= 100 characters each).
+All problems should have difficulty "{difficulty}".
 
-All problems should have difficulty "{difficulty}", but you do not need to include difficulty
-in the JSON since the application will store it separately.
-
-Return a single JSON object with this structure:
-
+Return a single JSON object:
 {{
   "problems": [
     {{
@@ -155,42 +150,26 @@ Return a single JSON object with this structure:
 }}
 """.strip()
 
-    response = client.chat.completions.create(
-        model="gpt-4.1-mini",
-        response_format={"type": "json_object"},
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ],
-        temperature=0.5,
-    )
-
-    content = response.choices[0].message.content
-    data = json.loads(content)
+    response = _get_model().generate_content(prompt)
+    data = json.loads(response.text)
 
     problems_data = data.get("problems", [])
     if not isinstance(problems_data, list) or not problems_data:
-        raise ValueError("LLM did not return a valid 'problems' list.")
+        raise ValueError("Gemini did not return a valid 'problems' list.")
 
     return problems_data
 
 
 def _scenario_description_is_meaningful(desc: str) -> bool:
-    """
-    insure meaningful scenario
-    avoid strings like '123' 'sdf' with no meaning.
-    """
+    """过滤过于简短或无意义的场景描述（如 '123'、'sdf'）"""
     desc = (desc or "").strip()
     if len(desc) < 10:
         return False
-
     alnum_count = sum(1 for c in desc if c.isalnum())
     if alnum_count < 3:
         return False
-
     if re.fullmatch(r"[A-Za-z0-9]{1,6}", desc):
         return False
-
     return True
 
 
@@ -200,10 +179,9 @@ def generate_problems_simple(
     num_problems: int = 3,
 ) -> List[Problem]:
 
-    # fixed problem number, can adjust later.
+    # 当前每次固定生成 1 道题，后续可调整
     num_problems = 1
 
-    # check if the scenario is valid.
     desc = (scenario.scenario_description or "").strip()
     if not _scenario_description_is_meaningful(desc):
         raise ValueError(
@@ -217,7 +195,6 @@ def generate_problems_simple(
         difficulty = "Easy"
 
     mentor = _get_system_llm_mentor()
-
     problems_data = _call_llm_for_scenario(
         scenario=scenario,
         difficulty=difficulty,
@@ -228,22 +205,18 @@ def generate_problems_simple(
 
     with transaction.atomic():
         for pdata in problems_data:
-            title = (pdata.get("title") or "").strip()
+            title       = (pdata.get("title")       or "").strip()
             description = (pdata.get("description") or "").strip()
             correct_sql = (pdata.get("correct_sql") or "").strip()
-            topics = pdata.get("topics") or []
+            topics      = pdata.get("topics") or []
 
             if not title or not correct_sql:
                 continue
 
-            # cut the length of title to avoid being too long
             if len(title) > 200:
                 title = title[:197] + "..."
 
-            topics = [
-                (t[:100] if t and len(t) > 100 else t)
-                for t in topics
-            ]
+            topics = [(t[:100] if t and len(t) > 100 else t) for t in topics]
 
             problem = Problem.objects.create(
                 user=mentor,

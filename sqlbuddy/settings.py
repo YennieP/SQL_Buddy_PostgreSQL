@@ -154,7 +154,7 @@ if _db_url:
 # 6. 必要环境变量检查
 #    生产环境启动时，如果关键变量缺失则直接报错，而不是悄悄用空值
 # =============================================================
-REQUIRED_ENV_VARS = ["OPENAI_API_KEY"]
+REQUIRED_ENV_VARS = ["GEMINI_API_KEY"]
 _missing = [v for v in REQUIRED_ENV_VARS if not os.getenv(v)]
 if _missing and not DEBUG:
     raise ValueError(f"Missing required environment variables: {', '.join(_missing)}")

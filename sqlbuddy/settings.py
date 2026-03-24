@@ -154,7 +154,7 @@ if _db_url:
 # 6. 必要环境变量检查
 #    生产环境启动时，如果关键变量缺失则直接报错，而不是悄悄用空值
 # =============================================================
-REQUIRED_ENV_VARS = ["GEMINI_API_KEY"]
+REQUIRED_ENV_VARS = ["OPENAI_API_KEY"]
 _missing = [v for v in REQUIRED_ENV_VARS if not os.getenv(v)]
 if _missing and not DEBUG:
     raise ValueError(f"Missing required environment variables: {', '.join(_missing)}")
@@ -207,11 +207,13 @@ CRISPY_TEMPLATE_PACK          = "bootstrap5"
 
 
 # =============================================================
-# 11. Gemini 配置
+# 11. OpenAI 配置
 #     用于 NL→SQL 自然语言查询 和 场景题目生成
 # =============================================================
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-GEMINI_MODEL   = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+# gpt-4o-mini：速度快、成本低，适合 demo 级别应用
+# 如需更高精度可改为 gpt-4o，但 API 费用约 10 倍
+OPENAI_MODEL   = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
 
 # =============================================================

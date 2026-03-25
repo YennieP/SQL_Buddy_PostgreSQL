@@ -28,7 +28,7 @@
 |------|------|
 | 后端 | Python 3.11、Django 4.2 |
 | 数据库 | PostgreSQL（Railway 托管） |
-| AI 集成 | OpenAI GPT-4o-mini API |
+| AI 集成 | Gemini gemini-2.5-flash API |
 | 前端 | Django Templates、Bootstrap 5 |
 | 部署 | Railway |
 | 认证 | 基于 Session 的自定义认证，密码使用 Django `make_password` / `check_password` 哈希存储 |

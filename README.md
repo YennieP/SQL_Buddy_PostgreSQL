@@ -28,7 +28,7 @@ An AI-powered SQL learning platform where students practice SQL through interact
 |-------|-----------|
 | Backend | Python 3.11, Django 4.2 |
 | Database | PostgreSQL (Railway) |
-| AI | OpenAI GPT-4o-mini API |
+| AI | Gemini gemini-2.5-flash API |
 | Frontend | Django Templates, Bootstrap 5 |
 | Deployment | Railway |
 | Auth | Session-based with Django password hashing (`make_password` / `check_password`) |
